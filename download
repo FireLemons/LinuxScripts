@@ -1,0 +1,39 @@
+#!/bin/bash
+
+if [ $# -lt 1 ] 
+then
+    echo "Error: missing url"
+    exit 1
+fi
+
+if [[ "$1" == http?(s)://www.youtube.com* ]]
+then
+    youtube-dl -f "298+140/136+140" "$1"
+    exit 0
+
+elif [[ "$1" == http?(s)://www.twitch.tv* ]]
+then
+    if [ $# -ge 3 ]
+    then
+      cd ~/Videos/VODs/
+
+      start=`date +%s -d $2`
+      end=`date +%s -d $3`
+      endCorrected=`expr ${end} - ${start}`
+      fileName=`[ $# -ge 4 ] && echo "$4" || echo "twitchVod"`
+
+      ffmpeg -ss "$2" -i `youtube-dl -f 720p60 -g "$1"` -t "$endCorrected" -c copy "$fileName".mp4
+      echo "Saved video to ~/Videos/VODs/${fileName}.mp4"
+
+    else
+      cd ~/Videos/VODs/
+      youtube-dl -f 720p60 $1
+      echo "Saved video to ~/Videos/VODs/"
+
+    fi
+
+    exit 0
+else
+    echo "Unsupported domain. Only Youtube and Twitch are supported."
+    exit 0
+fi
