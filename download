@@ -3,6 +3,10 @@
 if [ $# -lt 1 ] 
 then
     echo "Error: missing url"
+    echo "Usage:"
+    echo "  download <url>"
+    echo "  download <url> <start time(HH:MM:SS)> <end time(HH:MM:SS)>"
+    echo "  download <url> <start time(HH:MM:SS)> <end time(HH:MM:SS)> <file name>"
     exit 1
 fi
 
