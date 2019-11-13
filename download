@@ -26,7 +26,7 @@ then
       endCorrected=`expr ${end} - ${start}`
       fileName=`[ $# -ge 4 ] && echo "$4" || echo "twitchVod"`
 
-      ffmpeg -ss "$2" -i `youtube-dl -f 720p60 -g "$1"` -t "$endCorrected" -c copy "$fileName".mp4
+      ffmpeg -ss "$2" -i `youtube-dl -f 720p60/720p60-0 -g "$1"` -t "$endCorrected" -c copy "$fileName".mp4
       echo "Saved video to ~/Videos/VODs/${fileName}.mp4"
 
     else
