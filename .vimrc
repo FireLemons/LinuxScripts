@@ -13,3 +13,6 @@ set belloff=all
 "Map alt t to next tab
 execute "set <M-t>=\et"
 noremap <M-t> :tabnext<CR>
+
+"HTML syntax coloring for .mustache templates
+autocmd BufNewFile,BufRead *.mustache set syntax=html
