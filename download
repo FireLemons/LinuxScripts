@@ -5,18 +5,29 @@ then
     echo "Error: missing url"
     echo "Usage:"
     echo "  download <url>"
+    echo "  download -m <url>"
     echo "  download <url> <start time(HH:MM:SS)> <end time(HH:MM:SS)>"
     echo "  download <url> <start time(HH:MM:SS)> <end time(HH:MM:SS)> <file name>"
     exit 1
 fi
 
-if [[ "$1" == http?(s)://www.youtube.com* ]]
-then
+# Download a youtube video
+if [[ "$1" == http?(s)://www.youtube.com* ]];then
     youtube-dl -f "298+140/136+140" "$1"
     exit 0
 
-elif [[ "$1" == http?(s)://www.twitch.tv* ]]
-then
+# Download music from youtube
+elif [[ "$1" = "-m" ]];then
+    if [ $# -lt 2 ];then
+        echo "ERROR: No video url."
+        exit 1
+    fi
+
+    youtube-dl -f 140 "$2"
+    exit 0
+
+# Download a twitch VOD
+elif [[ "$1" == http?(s)://www.twitch.tv* ]];then
     if [ $# -ge 3 ]
     then
       cd ~/Videos/VODs/
