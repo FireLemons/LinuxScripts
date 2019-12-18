@@ -23,7 +23,7 @@ elif [[ "$1" = "-m" ]];then
         exit 1
     fi
 
-    youtube-dl -f 140 "$2"
+    youtube-dl -f 140 -o "~/Music/%(title)s.%(ext)s" "$2"
     exit 0
 
 # Download a twitch VOD
