@@ -1,0 +1,17 @@
+#!/bin/bash
+
+# Quick setup for a fresh linux install
+# Check if running as sudo
+
+if [ "$EUID" -ne 0 ]
+  then echo "ERROR: Not run with sudo"
+  exit 1
+fi
+
+# Install git
+
+# Install video utilities
+
+# Install Node
+
+# Install Wine
