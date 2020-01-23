@@ -8,10 +8,36 @@ if [ "$EUID" -ne 0 ]
   exit 1
 fi
 
+# update existing packages
+apt update
+apt upgrade
+
+# Remove bloat packages
+# Remove email manager
+apt purge thunderbird*
+apt autoremove
+
+# Install wanted packages
+# Install external drive format support
+apt install exfat-fuse exfat-utils
+
+# Install Macchanger
+apt install macchanger
+
 # Install git
+apt install git
+
+# Install vim
+apt install vim
 
 # Install video utilities
+apt install ffmpeg
+apt install ubuntu-restricted-extras
 
 # Install Node
 
 # Install Wine
+
+# Install sl
+apt install sl
+sl
