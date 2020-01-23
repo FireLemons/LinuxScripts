@@ -21,6 +21,12 @@ apt autoremove
 # Install external drive format support
 apt install exfat-fuse exfat-utils
 
+# Install file archivers
+sudo apt install p7zip-full
+
+# Install cURL
+apt install curl
+
 # Install Macchanger
 apt install macchanger
 
@@ -30,13 +36,40 @@ apt install git
 # Install vim
 apt install vim
 
+# Add /usr/local/bin to PATH
+PATH=$PATH:/usr/local/bin
+
 # Install video utilities
-apt install ffmpeg
+# Some decoders
 apt install ubuntu-restricted-extras
 
+apt install ffmpeg
+curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
+chmod a+rx /usr/local/bin/youtube-dl
+
+sudo apt install ffmpegthumbnailer
+
 # Install Node
+curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+sudo apt install -y nodejs
+# Configure node global packages not to require sudo
+npm config set prefix ~/.local
+PATH=~/.local/bin/:$PATH
+# Install some global node packages
+npm i -g http-server
+npm i -g standard
+npm i -g minify
 
 # Install Wine
+# Enable 32 bit architecture if not yet enabled
+sudo dpkg --add-architecture i386 
+# Install ket to authenticate wine installation
+wget -nc https://dl.winehq.org/wine-builds/winehq.key
+sudo apt-key add winehq.key
+# Main Installation
+sudo apt update
+sudo apt install --install-recommends winehq-stable
+# run winecfg after installing
 
 # Install sl
 apt install sl
