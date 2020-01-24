@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# Add /usr/local/bin to PATH
+PATH=$PATH:/usr/local/bin
+
+# Fetch wine authentication key
+wget -nc https://dl.winehq.org/wine-builds/winehq.key

@@ -1,0 +1,11 @@
+# Make youtube-dl executable
+chmod a+rx /usr/local/bin/youtube-dl
+
+# Node Configuration
+# Configure node global packages not to require sudo
+npm config set prefix ~/.local
+PATH=~/.local/bin/:$PATH
+# Install some global node packages
+npm i -g http-server
+npm i -g standard
+npm i -g minify
