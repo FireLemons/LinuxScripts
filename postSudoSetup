@@ -14,4 +14,6 @@ npm i -g chai
 npm i -g mocha
 npm i -g http-server
 npm i -g minify
+npm i -g nodemon
+npm i -g sass
 npm i -g standard
