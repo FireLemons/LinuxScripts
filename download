@@ -48,6 +48,8 @@ elif [[ "$1" == http?(s)://www.twitch.tv* ]];then
     fi
 
     exit 0
+elif [[ "$1" == http?(s)://www.crunchyroll.com* ]];then 
+    youtube-dl --write-sub --sub-lang enUS "$1"
 else
     echo "Unsupported domain. Only Youtube and Twitch are supported."
     exit 0
