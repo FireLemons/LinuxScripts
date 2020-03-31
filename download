@@ -41,8 +41,7 @@ elif [[ "$1" == http?(s)://www.twitch.tv* ]];then
       echo "Saved video to ~/Videos/VODs/${fileName}.mp4"
 
     else
-      cd ~/Videos/VODs/
-      youtube-dl -f 720p60 $1
+      youtube-dl -f 720p60 -o "~/Videos/VODs/%(title)s.%(ext)s" $1
       echo "Saved video to ~/Videos/VODs/"
 
     fi
