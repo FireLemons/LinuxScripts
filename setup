@@ -59,6 +59,9 @@ dpkg --add-architecture i386
 apt-key add winehq.key
 # Main Installation
 apt update
+
+# WARNING "focal" describes wine for Ubuntu 20.04. For different versions check https://wiki.winehq.org/Ubuntu for the correct keyword
+add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main'
 apt install --install-recommends winehq-stable
 echo "please run winecfg"
 
