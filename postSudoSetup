@@ -17,3 +17,9 @@ npm i -g minify
 npm i -g nodemon
 npm i -g sass
 npm i -g standard
+
+# Create Games directory from wine home
+cd .wine/drive_c/users/flysy
+mkdir Games
+cd ~
+ln -s .wine/drive_c/users/flysy/Games Games
