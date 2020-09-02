@@ -1,7 +1,7 @@
 #!/bin/bash
 # Quick setup for a fresh linux install
 
-# run "who" if you don't remember who the main user is me
+# run "who" if you don't remember who the main user is, me
 USER=flysy
 
 # Check if running as sudo
@@ -12,15 +12,17 @@ if [ "$EUID" -ne 0 ]
 fi
 
 # Add /usr/local/bin to PATH
+echo "\nINFO: Adding /usr/local/bin to \$PATH\n"
 sudo -u $USER PATH=$PATH:/usr/local/bin
 
 # update existing packages
+echo "\nINFO: Updating Installed Packages\n"
 apt update
 apt upgrade
 
 # Remove bloat packages
 # Remove email manager
-apt purge thunderbird*
+apt purge thunderbird
 apt autoremove
 
 # Install wanted packages
@@ -41,19 +43,24 @@ apt install git
 
 # Install vim
 apt install vim
+#   Make vim the default editor
+sudo -u $USER export VISUAL=vim
+sudo -u $USER export EDITOR="$VISUAL"
 #   Install youcompleteme dependencies
 apt install build-essential cmake vim python3-dev
-# Install Vundle for youcompleteme
+#   Install Vundle for youcompleteme
 sudo -u $USER git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
 
 # Install video utilities
-# Some decoders
+#   Some decoders
 apt install ubuntu-restricted-extras
-
+#   Install ffmpeg
 apt install ffmpeg
-curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
-
 apt install ffmpegthumbnailer
+#   Install youtube-dl
+curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
+#     Make youtube-dl executable
+sudo -u $USER chmod a+rx /usr/local/bin/youtube-dl
 
 # Install Chromium
 apt install chromium-browser
@@ -61,6 +68,19 @@ apt install chromium-browser
 # Install Node
 curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
 apt install -y nodejs
+
+# Node Configuration
+# Configure node global packages not to require sudo
+sudo -u $USER npm config set prefix ~/.local
+sudo -u $USER PATH=~/.local/bin/:$PATH
+# Install some global node packages
+sudo -u $USER npm i -g chai
+sudo -u $USER npm i -g mocha
+sudo -u $USER npm i -g http-server
+sudo -u $USER npm i -g minify
+sudo -u $USER npm i -g nodemon
+sudo -u $USER npm i -g sass
+sudo -u $USER npm i -g standard
 
 # Install Wine
 # Fetch wine authentication key
@@ -76,8 +96,13 @@ apt update
 # WARNING "focal" describes wine for Ubuntu 20.04. For different versions check https://wiki.winehq.org/Ubuntu for the correct keyword
 add-apt-repository 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main'
 apt install --install-recommends winehq-stable
-echo "please run winecfg"
+sudo -u $USER winecfg
 
+# Create Games directory from wine home
+cd ~/.wine/drive_c/users/flysy
+sudo -u $USER mkdir Games
+cd ~
+sudo -u $USER ln -s .wine/drive_c/users/flysy/Games Games
 # Install sl
 apt install sl
 sl
