@@ -1,22 +1,28 @@
 #!/bin/bash
 # Quick setup for a fresh linux install
 
-# run "who" if you don't remember who the main user is, me
+# run "who" if you don't remember who the main user is
 USER=flysy
+# Set to true to skip expensive operations during testing
+TEST=false
 
 # Check if running as sudo
 
-if [ "$EUID" -ne 0 ]
-  then echo "ERROR: Not run with sudo"
+if [ "$EUID" -ne 0 ]; then
+  echo $'ERROR: Not run with sudo\n  Exiting'
   exit 1
 fi
 
 # Add /usr/local/bin to PATH
-echo "\nINFO: Adding /usr/local/bin to \$PATH\n"
-sudo -u $USER PATH=$PATH:/usr/local/bin
+if [[ $PATH != *"/usr/local/bin"* ]]; then
+  echo $'\nINFO: Adding /usr/local/bin to \$PATH\n'
+  sudo -u $USER PATH=$PATH:/usr/local/bin
+else
+  echo $'\nINFO: /usr/local/bin has already been added to \$PATH\n'
+fi
 
 # update existing packages
-echo "\nINFO: Updating Installed Packages\n"
+echo $'\nINFO: Updating Installed Packages\n'
 apt update
 apt upgrade
 
@@ -61,6 +67,10 @@ apt install ffmpegthumbnailer
 curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
 #     Make youtube-dl executable
 sudo -u $USER chmod a+rx /usr/local/bin/youtube-dl
+#   Install VLC
+add-apt-repository ppa:videolan/stable-daily
+apt update
+apt install vlc
 
 # Install Chromium
 apt install chromium-browser

@@ -1,0 +1,27 @@
+#!/bin/bash
+# Quick setup for a fresh linux install
+
+# run "who" if you don't remember who the main user is
+USER=flysy
+# Set to true to skip expensive operations during testing
+TEST=true
+
+# Check if running as sudo
+
+if [ "$EUID" -ne 0 ]; then
+  echo $'ERROR: Not run with sudo\n  Exiting'
+  exit 1
+fi
+
+# Add /usr/local/bin to PATH
+if [[ $PATH != *"/usr/local/bin"* ]]; then
+  echo $'\nINFO: Adding /usr/local/bin to \$PATH\n'
+  sudo -u $USER PATH=$PATH:/usr/local/bin
+else
+  echo $'\nINFO: /usr/local/bin has already been added to \$PATH\n'
+fi
+
+# update existing packages
+echo $'\nINFO: Updating Installed Packages\n'
+apt update
+apt upgrade
