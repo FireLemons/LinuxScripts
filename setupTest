@@ -23,5 +23,9 @@ fi
 
 # update existing packages
 echo $'\nINFO: Updating Installed Packages\n'
-apt update
-apt upgrade
+if [[ $TEST != true ]]; then
+  apt update
+  apt upgrade
+else
+  echo $'  Test run. No packages will be updated and installed\n'
+fi
