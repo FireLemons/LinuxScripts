@@ -36,5 +36,15 @@ if [[ $(dpkg -s thunderbird | grep Status) == *"installed" ]]; then
   apt purge thunderbird
 fi
 
+# Install wanted packages
+#   Install external drive format support
+if [[ $(dpkg -s exfat-fuse | grep Status) != *"installed" ]]; then
+  apt install exfat-fuse
+fi
+
+if [[ $(dpkg -s exfat-fuse | grep Status) != *"installed" ]]; then
+  apt install exfat-utils
+fi
+
 # Clean up
 apt autoremove
