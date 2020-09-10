@@ -35,3 +35,6 @@ if [[ $(dpkg -s thunderbird | grep Status) == *"installed" ]]; then
   #   Remove email manager
   apt purge thunderbird
 fi
+
+# Clean up
+apt autoremove
