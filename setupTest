@@ -29,3 +29,9 @@ if [[ $TEST != true ]]; then
 else
   echo $'  Test run. No packages will be updated and installed\n'
 fi
+
+# Remove bloat packages
+if [[ $(dpkg -s thunderbird | grep Status) == *"installed" ]]; then
+  #   Remove email manager
+  apt purge thunderbird
+fi
