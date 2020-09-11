@@ -36,34 +36,46 @@ if [[ $(dpkg -s thunderbird | grep Status) == *"installed" ]]; then
 fi
 
 # Install wanted packages
+# Checks if a program is already installed before attempting to install it
+#   Param $1 string  | The name of the package to be installed
+#   Param $2 boolean | true to prompt the user for approval of an install. false otherwise
 function installCheck {
+  if [[ -z $1 ]]; then
+    echo "ERROR: function installCheck was run without parameters"
+    return
+  fi
+
   if [[ $(dpkg -s $1 | grep Status) != *"installed" ]]; then
-    apt install $1
+    if [[ ! -z $2 && $2 == true ]]; then
+      read -p "$1 is not installed. Would you like to install it? Y/N: " installAsk
+
+      if [[ $installAsk =~ [yY].* ]]; then
+        echo "INFO: installing $1"
+        apt install $1
+      else
+        echo "INFO: Skipping installing $1"
+      fi
+    else
+      echo "INFO: installing $1"
+      apt install $1
+    fi
   else
     echo "INFO: $1 is already installed"
   fi
-}  
+}
+
 #   Install external drive format support
 installCheck exfat-fuse
-
-if [[ $(dpkg -s exfat-fuse | grep Status) != *"installed" ]]; then
-  apt install exfat-utils
-fi
+installCheck exfat-utils
 
 #   Install file archivers
-if [[ $(dpkg -s p7zip-full | grep Status) != *"installed" ]]; then
-  apt install p7zip-full
-fi
+installCheck p7zip-full
 
 # Install cURL
-if [[ $(dpkg -s curl | grep Status) != *"installed" ]]; then
-  apt install curl
-fi
+installCheck curl
 
 # Install Macchanger
-if [[ $(dpkg -s curl | grep Status) != *"installed" ]]; then
-  apt install macchanger
-fi
+installCheck macchanger true
 
 # Clean up
 apt autoremove
