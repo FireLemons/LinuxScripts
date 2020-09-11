@@ -7,7 +7,6 @@ USER=flysy
 TEST=true
 
 # Check if running as sudo
-
 if [ "$EUID" -ne 0 ]; then
   echo $'ERROR: Not run with sudo\n  Exiting'
   exit 1
@@ -37,13 +36,33 @@ if [[ $(dpkg -s thunderbird | grep Status) == *"installed" ]]; then
 fi
 
 # Install wanted packages
+function installCheck {
+  if [[ $(dpkg -s $1 | grep Status) != *"installed" ]]; then
+    apt install $1
+  else
+    echo "INFO: $1 is already installed"
+  fi
+}  
 #   Install external drive format support
-if [[ $(dpkg -s exfat-fuse | grep Status) != *"installed" ]]; then
-  apt install exfat-fuse
-fi
+installCheck exfat-fuse
 
 if [[ $(dpkg -s exfat-fuse | grep Status) != *"installed" ]]; then
   apt install exfat-utils
+fi
+
+#   Install file archivers
+if [[ $(dpkg -s p7zip-full | grep Status) != *"installed" ]]; then
+  apt install p7zip-full
+fi
+
+# Install cURL
+if [[ $(dpkg -s curl | grep Status) != *"installed" ]]; then
+  apt install curl
+fi
+
+# Install Macchanger
+if [[ $(dpkg -s curl | grep Status) != *"installed" ]]; then
+  apt install macchanger
 fi
 
 # Clean up
