@@ -71,11 +71,38 @@ installCheck exfat-utils
 #   Install file archivers
 installCheck p7zip-full
 
-# Install cURL
+#   Install cURL
 installCheck curl
 
-# Install Macchanger
+#   Install Macchanger
 installCheck macchanger true
+
+#   Install git
+installCheck git
+
+#   Install vim
+installCheck vim
+#     Make vim the default editor
+sudo -u $USER export VISUAL=vim
+sudo -u $USER export EDITOR="$VISUAL"
+#     Install youcompleteme dependencies
+echo "INFO: installing dependencies for youcompleteme"
+installCheck build-essential
+installCheck cmake
+installCheck python3-dev
+#     Install Vundle for youcompleteme
+if [[ ! -f "/home/$USER/.vim/bundle/Vundle.vim" ]]; then
+  echo "INFO: Installing Vundle"
+  sudo -u $USER git clone "https://github.com/VundleVim/Vundle.vim.git" "/home/$USER/.vim/bundle/Vundle.vim"
+  sudo -u $USER cp "/home/$USER/Projects/LinuxScripts/.vimrc" "/home/$USER"
+  sudo -u $USER vim +PluginInstall +qall
+  echo "INFO: Installing YouCompleteMe"
+  cd "/home/$USER/.vim/bundle/youcompleteme"
+  sudo -u $USER python3 install.py --clangd-completer --ts-completer
+else
+  echo "INFO: YouCompleteMe is already installed. Skipping install"
+fi
+
 
 # Clean up
 apt autoremove
