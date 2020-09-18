@@ -76,7 +76,6 @@ installCheck curl
 
 #   Install Macchanger
 installCheck macchanger true
-
 #   Install git
 installCheck git
 
@@ -91,7 +90,7 @@ installCheck build-essential
 installCheck cmake
 installCheck python3-dev
 #     Install Vundle for youcompleteme
-if [[ ! -f "/home/$USER/.vim/bundle/Vundle.vim" ]]; then
+if [[ ! -d "/home/$USER/.vim/bundle/Vundle.vim" ]]; then
   echo "INFO: Installing Vundle"
   sudo -u $USER git clone "https://github.com/VundleVim/Vundle.vim.git" "/home/$USER/.vim/bundle/Vundle.vim"
   sudo -u $USER cp "/home/$USER/Projects/LinuxScripts/.vimrc" "/home/$USER"
@@ -103,6 +102,25 @@ else
   echo "INFO: YouCompleteMe is already installed. Skipping install"
 fi
 
+# Install video utilities
+#   Some decoders
+installCheck ubuntu-restricted-extras
+#   Install ffmpeg
+installCheck ffmpeg
+installCheck ffmpegthumbnailer true
+#   Install youtube-dl
+if ! command -v youtube-dl &> /dev/null; then
+  echo "INFO: Installing youtube-dl"
+  curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
+#     Make youtube-dl executable
+  chmod a+rx /usr/local/bin/youtube-dl
+else
+  echo "INFO: youtube-dl is already installed. Skipping installation"
+fi
+#   Install VLC
+#add-apt-repository ppa:videolan/stable-daily
+#apt update
+#installCheck vlc
 
 # Clean up
 apt autoremove
