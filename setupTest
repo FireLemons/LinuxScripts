@@ -29,16 +29,39 @@ else
   echo $'  Test run. No packages will be updated and installed\n'
 fi
 
-# Remove bloat packages
+########################
+# Remove bloat packages#
+########################
+#   Remove email manager
 if [[ $(dpkg -s thunderbird | grep Status) == *"installed" ]]; then
-  #   Remove email manager
   apt purge thunderbird
 fi
 
-# Install wanted packages
+##########################
+# Install wanted packages#
+##########################
+
+# Add a repository if they haven't already been added
+#   Param $1 string | The name of the repo to be added for searching
+#   Param $2 string | The repo string to pass to add-apt-repository
+function addRepoCheck {
+  if [[ $# -lt 2 ]]; then
+    echo "ERROR: function addRepoCheck was run without sufficient parameters"
+    return
+  fi
+
+  if ! grep -q "^deb .*$1" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+    echo "INFO: $1 repository not added. Adding $2"
+    add-apt-repository $2
+    apt update
+  else
+    echo "INFO: The repo $1 has already been added. Skipping add-apt-repository"
+  fi
+}
+
 # Checks if a program is already installed before attempting to install it
-#   Param $1 string  | The name of the package to be installed
-#   Param $2 boolean | true to prompt the user for approval of an install. false otherwise
+#   Param $1 string             | The name of the package to be installed
+#   Param $2 boolean (Optional) | true to prompt the user for approval of an install. false otherwise
 function installCheck {
   if [[ -z $1 ]]; then
     echo "ERROR: function installCheck was run without parameters"
@@ -118,9 +141,9 @@ else
   echo "INFO: youtube-dl is already installed. Skipping installation"
 fi
 #   Install VLC
-#add-apt-repository ppa:videolan/stable-daily
-#apt update
-#installCheck vlc
+#     Check if VLC repo has been added
+addRepoCheck videolan/stable-daily ppa:videolan/stable-daily
+installCheck vlc
 
 # Clean up
 apt autoremove
