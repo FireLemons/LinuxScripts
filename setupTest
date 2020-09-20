@@ -32,10 +32,25 @@ fi
 ########################
 # Remove bloat packages#
 ########################
-#   Remove email manager
-if [[ $(dpkg -s thunderbird | grep Status) == *"installed" ]]; then
-  apt purge thunderbird
-fi
+
+# Remove a package if it's installed
+#   Param $1 string | The name of the package to be removed
+function purgeCheck {
+  if [[ -z $1 ]]; then
+    echo "ERROR: function purgeCheck was run without parameters"
+    return
+  fi
+
+  if [[ $(dpkg -s $1 | grep Status) == *"installed" ]]; then
+    echo "INFO: Uninstalling $1"
+    apt purge $1
+  else
+    echo "INFO: $1 is already uninstalled. Skipping uninstall"
+  fi
+}
+
+# Remove email manager
+purgeCheck thunderbird
 
 ##########################
 # Install wanted packages#
