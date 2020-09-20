@@ -160,5 +160,24 @@ fi
 addRepoCheck videolan/stable-daily ppa:videolan/stable-daily
 installCheck vlc
 
+# Install Chromium
+installCheck chromium-browser
+
+# Install Node
+#vvvvv custom install
+if [[ $(dpkg -s nodejs | grep Status) != *"installed" ]]; then
+  read -p "node.js[v12] is not installed."\n"WARNING: Version 12 may not be the latest LTS version."\n"Would you like to install it? Y/N: " installAsk
+
+  if [[ $installAsk =~ [yY].* ]]; then
+    echo "INFO: installing nodejs v12"
+    curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+    apt install -y nodejs
+  else
+    echo "INFO: Skipping installing nodejs"
+  fi
+else
+  echo "INFO: nodejs is already installed"
+fi
+
 # Clean up
 apt autoremove
