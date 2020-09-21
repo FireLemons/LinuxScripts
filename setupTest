@@ -6,9 +6,44 @@ USER=flysy
 # Set to true to skip expensive operations during testing
 TEST=true
 
+# Set colors if available
+if test -t 1; then # if terminal
+    ncolors=$(which tput > /dev/null && tput colors) # supports color
+    if test -n "$ncolors" && test $ncolors -ge 8; then
+        normal="$(tput sgr0)"
+        red="$(tput setaf 1)"
+        yellow="$(tput setaf 3)"
+    fi
+fi
+
+# Colorized output
+#   Param $1 string | The logging level: info, warning, or error
+#   Param $2 string | The message to be logged
+function log {
+  if [[ $# -lt 2 ]]; then
+    echo "${red}ERROR: function addRepoCheck was run without sufficient parameters"
+    return
+  fi
+  
+  case $1 in
+    info)
+      echo "${normal}INFO: $2"
+    ;;
+    warn)
+      echo "${yellow}WARNING: $2"
+    ;;
+    error)
+      echo "${red}ERROR: $2"
+    ;;
+    *)
+      echo "${red}ERROR: Unrecognized log level: $1"
+    ;;
+  esac
+}
+
 # Check if running as sudo
 if [ "$EUID" -ne 0 ]; then
-  echo $'ERROR: Not run with sudo\n  Exiting'
+  log error $'Not run with sudo\n  Exiting'
   exit 1
 fi
 
@@ -29,9 +64,9 @@ else
   echo $'  Test run. No packages will be updated and installed\n'
 fi
 
-########################
-# Remove bloat packages#
-########################
+###########################
+# Remove unwanted packages#
+###########################
 
 # Remove a package if it's installed
 #   Param $1 string | The name of the package to be removed
@@ -165,7 +200,9 @@ installCheck chromium-browser
 
 # Install Node
 if [[ $(dpkg -s nodejs | grep Status) != *"installed" ]]; then
-  read -p "node.js[v12] is not installed."\n"WARNING: Version 12 may not be the latest LTS version."\n"Would you like to install it? Y/N: " installAsk
+  read -p "node.js[v12] is not installed.
+  WARNING: Version 12 may not be the latest LTS version.
+  Would you like to install it? Y/N: " installAsk
 
   if [[ $installAsk =~ [yY].* ]]; then
     echo "INFO: installing nodejs v12"
