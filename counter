@@ -1,0 +1,6 @@
+#!/bin/bash
+
+#Lists the number of files in each sub directory of depth 1 for the current directory 
+for d in */; do
+  echo "$d" $(ls -1 $d | wc -l)
+done
