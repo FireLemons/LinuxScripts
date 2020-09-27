@@ -21,22 +21,22 @@ fi
 #   Param $2 string | The message to be logged
 function log {
   if [[ $# -lt 2 ]]; then
-    echo "${red}ERROR: function addRepoCheck was run without sufficient parameters"
+    echo "${red}ERROR: function addRepoCheck was run without sufficient parameters ${normal}"
     return
   fi
   
   case $1 in
     info)
-      echo "${normal}INFO: $2"
+      echo "INFO: $2"
     ;;
     warn)
-      echo "${yellow}WARNING: $2"
+      echo "${yellow}WARNING: $2 ${normal}"
     ;;
     error)
-      echo "${red}ERROR: $2"
+      echo "${red}ERROR: $2 ${normal}"
     ;;
     *)
-      echo "${red}ERROR: Unrecognized log level: $1"
+      echo "${red}ERROR: Unrecognized log level: $1 ${normal}"
     ;;
   esac
 }
@@ -49,43 +49,46 @@ fi
 
 # Add /usr/local/bin to PATH
 if [[ $PATH != *"/usr/local/bin"* ]]; then
-  echo $'\nINFO: Adding /usr/local/bin to \$PATH\n'
+  log info $'Adding /usr/local/bin to \$PATH'
   sudo -u $USER PATH=$PATH:/usr/local/bin
 else
-  echo $'\nINFO: /usr/local/bin has already been added to \$PATH\n'
+  log info $'/usr/local/bin has already been added to \$PATH'
 fi
 
 # update existing packages
-echo $'\nINFO: Updating Installed Packages\n'
+log info 'Updating Installed Packages'
 if [[ $TEST != true ]]; then
   apt update
   apt upgrade
 else
-  echo $'  Test run. No packages will be updated and installed\n'
+  log info '  Test run. No packages will be updated and installed'
 fi
+echo ""
 
 ###########################
 # Remove unwanted packages#
 ###########################
-
+log info $'Removing Unwanted Packages'
 # Remove a package if it's installed
 #   Param $1 string | The name of the package to be removed
 function purgeCheck {
   if [[ -z $1 ]]; then
-    echo "ERROR: function purgeCheck was run without parameters"
+    log error "  function purgeCheck was run without parameters"
     return
   fi
 
   if [[ $(dpkg -s $1 | grep Status) == *"installed" ]]; then
-    echo "INFO: Uninstalling $1"
+    log info "  Uninstalling $1"
     apt purge $1
   else
-    echo "INFO: $1 is already uninstalled. Skipping uninstall"
+    log info "  $1 is already uninstalled. Skipping uninstall"
   fi
 }
 
 # Remove email manager
 purgeCheck thunderbird
+
+echo ""
 
 ##########################
 # Install wanted packages#
@@ -96,16 +99,16 @@ purgeCheck thunderbird
 #   Param $2 string | The repo string to pass to add-apt-repository
 function addRepoCheck {
   if [[ $# -lt 2 ]]; then
-    echo "ERROR: function addRepoCheck was run without sufficient parameters"
+    log error "function addRepoCheck was run without sufficient parameters"
     return
   fi
 
   if ! grep -q "^deb .*$1" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
-    echo "INFO: $1 repository not added. Adding $2"
+    log info "$1 repository not added. Adding $2"
     add-apt-repository $2
     apt update
   else
-    echo "INFO: The repo $1 has already been added. Skipping add-apt-repository"
+    log info "The repo $1 has already been added. Skipping add-apt-repository"
   fi
 }
 
@@ -114,7 +117,7 @@ function addRepoCheck {
 #   Param $2 boolean (Optional) | true to prompt the user for approval of an install. false otherwise
 function installCheck {
   if [[ -z $1 ]]; then
-    echo "ERROR: function installCheck was run without parameters"
+    log error "function installCheck was run without parameters"
     return
   fi
 
@@ -123,17 +126,17 @@ function installCheck {
       read -p "$1 is not installed. Would you like to install it? Y/N: " installAsk
 
       if [[ $installAsk =~ [yY].* ]]; then
-        echo "INFO: installing $1"
+        log info "installing $1"
         apt install $1
       else
-        echo "INFO: Skipping installing $1"
+        log info "Skipping installing $1"
       fi
     else
-      echo "INFO: installing $1"
+      log info "installing $1"
       apt install $1
     fi
   else
-    echo "INFO: $1 is already installed"
+    log info "$1 is already installed"
   fi
 }
 
@@ -158,21 +161,21 @@ installCheck vim
 sudo -u $USER export VISUAL=vim
 sudo -u $USER export EDITOR="$VISUAL"
 #     Install youcompleteme dependencies
-echo "INFO: installing dependencies for youcompleteme"
+log info "installing dependencies for youcompleteme"
 installCheck build-essential
 installCheck cmake
 installCheck python3-dev
 #     Install Vundle for youcompleteme
 if [[ ! -d "/home/$USER/.vim/bundle/Vundle.vim" ]]; then
-  echo "INFO: Installing Vundle"
+  log info "Installing Vundle"
   sudo -u $USER git clone "https://github.com/VundleVim/Vundle.vim.git" "/home/$USER/.vim/bundle/Vundle.vim"
   sudo -u $USER cp "/home/$USER/Projects/LinuxScripts/.vimrc" "/home/$USER"
   sudo -u $USER vim +PluginInstall +qall
-  echo "INFO: Installing YouCompleteMe"
+  log info "Installing YouCompleteMe"
   cd "/home/$USER/.vim/bundle/youcompleteme"
   sudo -u $USER python3 install.py --clangd-completer --ts-completer
 else
-  echo "INFO: YouCompleteMe is already installed. Skipping install"
+  log info "YouCompleteMe is already installed. Skipping install"
 fi
 
 # Install video utilities
@@ -183,29 +186,31 @@ installCheck ffmpeg
 installCheck ffmpegthumbnailer true
 #   Install youtube-dl
 if ! command -v youtube-dl &> /dev/null; then
-  echo "INFO: Installing youtube-dl"
+  log info "Installing youtube-dl"
   curl -L https://yt-dl.org/downloads/latest/youtube-dl -o /usr/local/bin/youtube-dl
 #     Make youtube-dl executable
   chmod a+rx /usr/local/bin/youtube-dl
 else
-  echo "INFO: youtube-dl is already installed. Skipping installation"
+  log info "youtube-dl is already installed. Skipping installation"
 fi
 #   Install VLC
-#     Check if VLC repo has been added
-addRepoCheck videolan/stable-daily ppa:videolan/stable-daily
-installCheck vlc
+VLCRepoCheck=$(addRepoCheck videolan/stable-daily ppa:videolan/stable-daily)
+echo $VLCRepoCheck
+if [[ VLCRepoCheck == *"not added"* ]]; then
+  installCheck vlc
+fi
 
 # Install Chromium
 installCheck chromium-browser
 
 # Install Node
 if [[ $(dpkg -s nodejs | grep Status) != *"installed" ]]; then
-  read -p "node.js[v12] is not installed.
+  read -p "${yellow}node.js[v12] is not installed.
   WARNING: Version 12 may not be the latest LTS version.
-  Would you like to install it? Y/N: " installAsk
+  Would you like to install it? Y/N: ${normal}" installAsk
 
   if [[ $installAsk =~ [yY].* ]]; then
-    echo "INFO: installing nodejs v12"
+    log info "installing nodejs v12"
     curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
     apt install -y nodejs
 
@@ -222,10 +227,10 @@ if [[ $(dpkg -s nodejs | grep Status) != *"installed" ]]; then
     sudo -u $USER npm i -g sass
     sudo -u $USER npm i -g standard
   else
-    echo "INFO: Skipping installing nodejs"
+    log info "Skipping installing nodejs"
   fi
 else
-  echo "INFO: nodejs is already installed"
+  log info "nodejs is already installed"
 fi
 
 # Clean up
