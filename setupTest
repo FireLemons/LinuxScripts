@@ -157,9 +157,6 @@ installCheck git
 
 #   Install vim
 installCheck vim
-#     Make vim the default editor
-sudo -u $USER export VISUAL=vim
-sudo -u $USER export EDITOR="$VISUAL"
 #     Install youcompleteme dependencies
 log info "installing dependencies for youcompleteme"
 installCheck build-essential
@@ -177,6 +174,10 @@ if [[ ! -d "/home/$USER/.vim/bundle/Vundle.vim" ]]; then
 else
   log info "YouCompleteMe is already installed. Skipping install"
 fi
+#     Configure vim as default editor
+log info "Configuring vim as the default editor"
+update-alternatives --config editor
+sudo -u $USER git config --global core.editor vim
 
 # Install video utilities
 #   Some decoders
