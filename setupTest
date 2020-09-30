@@ -65,9 +65,9 @@ else
 fi
 echo ""
 
-###########################
-# Remove unwanted packages#
-###########################
+############################
+# Remove unwanted packages #
+############################
 log info $'Removing Unwanted Packages'
 # Remove a package if it's installed
 #   Param $1 string | The name of the package to be removed
@@ -77,7 +77,7 @@ function purgeCheck {
     return
   fi
 
-  if [[ $(dpkg -s $1 | grep Status) == *"installed" ]]; then
+  if [[ $(dpkg -s $1 2>/dev/null | grep Status) == *"installed" ]]; then
     log info "  Uninstalling $1"
     apt purge $1
   else
@@ -90,9 +90,9 @@ purgeCheck thunderbird
 
 echo ""
 
-##########################
-# Install wanted packages#
-##########################
+###########################
+# Install wanted packages #
+###########################
 
 # Add a repository if they haven't already been added
 #   Param $1 string | The name of the repo to be added for searching
@@ -121,7 +121,7 @@ function installCheck {
     return
   fi
 
-  if [[ $(dpkg -s $1 | grep Status) != *"installed" ]]; then
+  if [[ $(dpkg -s $1 2>/dev/null | grep Status) != *"installed" ]]; then
     if [[ ! -z $2 && $2 == true ]]; then
       read -p "$1 is not installed. Would you like to install it? Y/N: " installAsk
 
@@ -205,7 +205,7 @@ fi
 installCheck chromium-browser
 
 # Install Node
-if [[ $(dpkg -s nodejs | grep Status) != *"installed" ]]; then
+if [[ $(dpkg -s nodejs 2>/dev/null | grep Status) != *"installed" ]]; then
   read -p "${yellow}node.js[v12] is not installed.
   WARNING: Version 12 may not be the latest LTS version.
   Would you like to install it? Y/N: ${normal}" installAsk
