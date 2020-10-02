@@ -112,12 +112,16 @@ function addRepoCheck {
   fi
 }
 
+# Determines whether a program has been installed or not
+function isInstalled {
+}
+
 # Checks if a program is already installed before attempting to install it
 #   Param $1 string             | The name of the package to be installed
 #   Param $2 boolean (Optional) | true to prompt the user for approval of an install. false otherwise
-function installCheck {
+function installOnce {
   if [[ -z $1 ]]; then
-    log error "function installCheck was run without parameters"
+    log error "function installOnce was run without parameters"
     return
   fi
 
@@ -141,27 +145,27 @@ function installCheck {
 }
 
 #   Install external drive format support
-installCheck exfat-fuse
-installCheck exfat-utils
+installOnce exfat-fuse
+installOnce exfat-utils
 
 #   Install file archivers
-installCheck p7zip-full
+installOnce p7zip-full
 
 #   Install cURL
-installCheck curl
+installOnce curl
 
 #   Install Macchanger
-installCheck macchanger true
+installOnce macchanger true
 #   Install git
-installCheck git
+installOnce git
 
 #   Install vim
-installCheck vim
+installOnce vim
 #     Install youcompleteme dependencies
 log info "installing dependencies for youcompleteme"
-installCheck build-essential
-installCheck cmake
-installCheck python3-dev
+installOnce build-essential
+installOnce cmake
+installOnce python3-dev
 #     Install Vundle for youcompleteme
 if [[ ! -d "/home/$USER/.vim/bundle/Vundle.vim" ]]; then
   log info "Installing Vundle"
@@ -176,15 +180,16 @@ else
 fi
 #     Configure vim as default editor
 log info "Configuring vim as the default editor"
+log warn "Pick vim.basic not vim.tiny"
 update-alternatives --config editor
 sudo -u $USER git config --global core.editor vim
 
 # Install video utilities
 #   Some decoders
-installCheck ubuntu-restricted-extras
+installOnce ubuntu-restricted-extras
 #   Install ffmpeg
-installCheck ffmpeg
-installCheck ffmpegthumbnailer true
+installOnce ffmpeg
+installOnce ffmpegthumbnailer true
 #   Install youtube-dl
 if ! command -v youtube-dl &> /dev/null; then
   log info "Installing youtube-dl"
@@ -198,11 +203,11 @@ fi
 VLCRepoCheck=$(addRepoCheck videolan/stable-daily ppa:videolan/stable-daily)
 echo $VLCRepoCheck
 if [[ VLCRepoCheck == *"not added"* ]]; then
-  installCheck vlc
+  installOnce vlc
 fi
 
 # Install Chromium
-installCheck chromium-browser
+installOnce chromium-browser
 
 # Install Node
 if [[ $(dpkg -s nodejs 2>/dev/null | grep Status) != *"installed" ]]; then
@@ -233,6 +238,8 @@ if [[ $(dpkg -s nodejs 2>/dev/null | grep Status) != *"installed" ]]; then
 else
   log info "nodejs is already installed"
 fi
+# Install sl
+installOnce sl
 
 # Clean up
 apt autoremove
