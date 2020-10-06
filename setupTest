@@ -95,7 +95,7 @@ echo ""
 ###########################
 
 # Add a repository if they haven't already been added
-#   Param $1 string | The name of the repo to be added for searching
+#   Param $1 string | The name of the repo to be added for searching the local package list
 #   Param $2 string | The repo string to pass to add-apt-repository
 function addRepoCheck {
   if [[ $# -lt 2 ]]; then
@@ -247,6 +247,39 @@ if [[ -z $(isInstalled nodejs) ]]; then
   fi
 else
   log info "nodejs is already installed"
+fi
+
+# Install Wine
+if [[ -z $(isInstalled winehq-stable) ]]; then
+#   Prepare to install wine
+#     Enable 32 bit architecture if not yet enabled
+  dpkg --add-architecture i386
+#     Add wine authentication key
+  sudo -u $USER wget -nc https://dl.winehq.org/wine-builds/winehq.key
+  apt-key add winehq.key
+#   Main Installation
+  apt update
+
+  UbuntuVersion=$(cat /etc/os-release | grep VERSION=)
+
+  if [[ $UbuntuVersion != *"Focal Fossa"* ]]; then
+    log warn "\"focal\" describes wine for Ubuntu 20.04. For different versions check https://wiki.winehq.org/Ubuntu for the correct keyword"
+    log info "The current version is $UbuntuVersion"
+  else
+    addRepoCheck 'wine-builds/ubuntu/' 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main'
+    log info "Installing wine"
+    apt install --install-recommends winehq-stable
+#   Wine configuration
+    log info "Configuring wine"
+    sudo -u $USER winecfg
+#     Create Games directory from wine home
+    cd ~/.wine/drive_c/users/$USER
+    sudo -u $USER mkdir Games
+    cd /home/$USER/
+    sudo -u $USER ln -s .wine/drive_c/users/flysy/Games Games
+  fi
+else
+  log info "wine is already installed"
 fi
 
 # Install sl
