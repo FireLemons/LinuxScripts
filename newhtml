@@ -19,4 +19,3 @@ echo "<!DOCTYPE html>
 
   </body>
 </html>" > "$1".html
-exit 0
