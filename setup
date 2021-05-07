@@ -27,7 +27,7 @@ function log {
 }
 
 # Check if the user is set correctly for the script
-USER=flysy
+USER=shen64
 log info "The user is set to $USER"
 log info "Run \"who\" to check the user account"
 read -p "Would you like to continue? Y/N: " userConfirm
@@ -236,44 +236,32 @@ else
   log info "youtube-dl is already installed. Skipping installation"
 fi
 #   Install VLC
-VLCRepoCheck=$(addRepoCheck videolan/stable-daily ppa:videolan/stable-daily)
-echo $VLCRepoCheck
-if [[ VLCRepoCheck == *"not added"* ]]; then
-  installOnce vlc
-fi
+#VLCRepoCheck=$(addRepoCheck videolan/stable-daily ppa:videolan/stable-daily)
+#echo $VLCRepoCheck
+#if [[ VLCRepoCheck == *"not added"* ]]; then
+#  installOnce vlc
+#fi
 
 # Install Chromium
 installOnce chromium-browser
 
 # Install Node
-if [[ -z $(isInstalled nodejs) ]]; then
-  read -p "${yellow}node.js[v12] is not installed.
-  WARNING: Version 12 may not be the latest LTS version.
-  Would you like to install it? Y/N: ${normal}" installAsk
-
-  if [[ $installAsk =~ [yY].* ]]; then
-    log info "installing nodejs v12"
-    curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
-    apt install -y nodejs
+log info "installing nodejs"
+curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+sudo apt-get install -y nodejs
 
 #   Node Configuration
 #     Configure node global packages not to require sudo
-    sudo -u $USER npm config set prefix ~/.local
-    sudo -u $USER PATH=~/.local/bin/:$PATH
+sudo -u $USER npm config set prefix ~/.local
+sudo -u $USER PATH=~/.local/bin/:$PATH
 #     Install some global node packages
-    sudo -u $USER npm i -g chai
-    sudo -u $USER npm i -g mocha
-    sudo -u $USER npm i -g http-server
-    sudo -u $USER npm i -g minify
-    sudo -u $USER npm i -g nodemon
-    sudo -u $USER npm i -g sass
-    sudo -u $USER npm i -g standard
-  else
-    log info "Skipping installing nodejs"
-  fi
-else
-  log info "nodejs is already installed"
-fi
+sudo -u $USER npm i -g chai
+sudo -u $USER npm i -g mocha
+sudo -u $USER npm i -g http-server
+sudo -u $USER npm i -g minify
+sudo -u $USER npm i -g nodemon
+sudo -u $USER npm i -g sass
+sudo -u $USER npm i -g standard
 
 # Install Wine
 if [[ -z $(isInstalled winehq-stable) ]]; then
