@@ -4,7 +4,7 @@
 # Colorized output
 #   Param $1 string | The logging level: info, warning, or error
 #   Param $2 string | The message to be logged
-function log {
+function log () {
   if [[ $# -lt 2 ]]; then
     echo "${red}ERROR: function addRepoCheck was run without sufficient parameters ${normal}"
     return
@@ -97,7 +97,7 @@ echo ""
 log info $'Removing Unwanted Packages'
 # Remove a package if it's installed
 #   Param $1 string | The name of the package to be removed
-function purgeCheck() {
+function purgeCheck () {
   if [[ -z $1 ]]; then
     log error "  function purgeCheck was run without parameters"
     return
@@ -123,7 +123,7 @@ echo ""
 # Add a repository if they haven't already been added
 #   Param $1 string | The name of the repo to be added for searching the local package list
 #   Param $2 string | The repo string to pass to add-apt-repository
-function addRepoCheck() {
+function addRepoCheck () {
   if [[ $# -lt 2 ]]; then
     log error "function addRepoCheck was run without sufficient parameters"
     return
@@ -141,7 +141,7 @@ function addRepoCheck() {
 # Determines whether a program has been installed or not
 #   Param $1 string | The name of the package to check
 #   Echo "installed" on package installed, no output otherwise
-function isInstalled() {
+function isInstalled () {
   if [[ -z $1 ]]; then
     log error "function isInstalled was run without parameters"
     return
@@ -155,7 +155,7 @@ function isInstalled() {
 # Checks if a program is already installed before attempting to install it
 #   Param $1 string             | The name of the package to be installed
 #   Param $2 boolean (Optional) | true to prompt the user for approval of an install. false otherwise
-function installOnce {
+function installOnce () {
   if [[ -z $1 ]]; then
     log error "function installOnce was run without parameters"
     return
