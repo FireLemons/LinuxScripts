@@ -1,6 +1,16 @@
 #!/bin/bash
 # Quick setup for a fresh linux install
 
+# Set colors if available
+if test -t 1; then # if terminal
+    ncolors=$(which tput > /dev/null && tput colors) # supports color
+    if test -n "$ncolors" && test $ncolors -ge 8; then
+        normal="$(tput sgr0)"
+        red="$(tput setaf 1)"
+        yellow="$(tput setaf 3)"
+    fi
+fi
+
 # Colorized output
 #   Param $1 string | The logging level: info, warning, or error
 #   Param $2 string | The message to be logged
@@ -38,16 +48,6 @@ fi
 
 # Set to true to skip expensive operations during testing
 TEST=true
-
-# Set colors if available
-if test -t 1; then # if terminal
-    ncolors=$(which tput > /dev/null && tput colors) # supports color
-    if test -n "$ncolors" && test $ncolors -ge 8; then
-        normal="$(tput sgr0)"
-        red="$(tput setaf 1)"
-        yellow="$(tput setaf 3)"
-    fi
-fi
 
 # Check if running as sudo
 if [ "$EUID" -ne 0 ]; then
