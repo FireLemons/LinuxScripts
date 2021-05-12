@@ -97,7 +97,7 @@ echo ""
 log info $'Removing Unwanted Packages'
 # Remove a package if it's installed
 #   Param $1 string | The name of the package to be removed
-function purgeCheck {
+function purgeCheck() {
   if [[ -z $1 ]]; then
     log error "  function purgeCheck was run without parameters"
     return
@@ -123,7 +123,7 @@ echo ""
 # Add a repository if they haven't already been added
 #   Param $1 string | The name of the repo to be added for searching the local package list
 #   Param $2 string | The repo string to pass to add-apt-repository
-function addRepoCheck {
+function addRepoCheck() {
   if [[ $# -lt 2 ]]; then
     log error "function addRepoCheck was run without sufficient parameters"
     return
@@ -141,7 +141,7 @@ function addRepoCheck {
 # Determines whether a program has been installed or not
 #   Param $1 string | The name of the package to check
 #   Echo "installed" on package installed, no output otherwise
-function isInstalled {
+function isInstalled() {
   if [[ -z $1 ]]; then
     log error "function isInstalled was run without parameters"
     return
@@ -252,8 +252,8 @@ sudo apt-get install -y nodejs
 
 #   Node Configuration
 #     Configure node global packages not to require sudo
-sudo -u $USER npm config set prefix ~/.local
-sudo -u $USER PATH=~/.local/bin/:$PATH
+sudo -u $USER npm config set prefix /home/$USER/.local
+sudo -u $USER PATH=/home/$USER/.local/bin/:$PATH
 #     Install some global node packages
 sudo -u $USER npm i -g chai
 sudo -u $USER npm i -g mocha
@@ -287,7 +287,7 @@ if [[ -z $(isInstalled winehq-stable) ]]; then
     log info "Configuring wine"
     sudo -u $USER winecfg
 #     Create Games directory from wine home
-    cd ~/.wine/drive_c/users/$USER
+    cd /home/$USER/.wine/drive_c/users/$USER
     sudo -u $USER mkdir Games
     cd /home/$USER/
     sudo -u $USER ln -s .wine/drive_c/users/flysy/Games Games
