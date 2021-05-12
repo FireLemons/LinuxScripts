@@ -27,7 +27,7 @@ function log () {
 }
 
 # Check if the user is set correctly for the script
-USER=shen64
+USER=flysy
 log info "The user is set to $USER"
 log info "Run \"who\" to check the user account"
 read -p "Would you like to continue? Y/N: " userConfirm
@@ -82,30 +82,30 @@ else
 fi
 
 # Update existing packages
-log info 'Updating Installed Packages'
+log info "Updating Installed Packages"
 if [[ $TEST != true ]]; then
   apt update
   apt upgrade
 else
-  log info '  Test run. No packages will be updated and installed'
+  log info "  Test run. No packages will be updated and installed"
 fi
 echo ""
 
 ############################
 # Remove unwanted packages #
 ############################
-log info $'Removing Unwanted Packages'
+log info "Removing Unwanted Packages"
 # Remove a package if it's installed
 #   Param $1 string | The name of the package to be removed
 function purgeCheck () {
-  if [[ -z $1 ]]; then
+  if [[ -z "$1" ]]; then
     log error "  function purgeCheck was run without parameters"
     return
   fi
 
   if [[ $(dpkg -s $1 2>/dev/null | grep Status) == *"installed" ]]; then
     log info "  Uninstalling $1"
-    apt purge $1
+    apt purge "$1"
   else
     log info "  $1 is already uninstalled. Skipping uninstall"
   fi
@@ -131,7 +131,7 @@ function addRepoCheck () {
 
   if ! grep -q "^deb .*$1" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
     log info "$1 repository not added. Adding $2"
-    add-apt-repository $2
+    add-apt-repository "$2"
     apt update
   else
     log info "The repo $1 has already been added. Skipping add-apt-repository"
@@ -142,12 +142,12 @@ function addRepoCheck () {
 #   Param $1 string | The name of the package to check
 #   Echo "installed" on package installed, no output otherwise
 function isInstalled () {
-  if [[ -z $1 ]]; then
+  if [[ -z "$1" ]]; then
     log error "function isInstalled was run without parameters"
     return
   fi
   
-  if [[ $(dpkg -s $1 2>/dev/null | grep Status) == *"installed" ]]; then
+  if [[ $(dpkg -s "$1" 2>/dev/null | grep Status) == *"installed" ]]; then
     echo "installed"
   fi
 }
@@ -162,18 +162,18 @@ function installOnce () {
   fi
 
   if [[ -z $(isInstalled $1) ]]; then
-    if [[ ! -z $2 && $2 == true ]]; then
+    if [[ ! -z "$2" && "$2" == true ]]; then
       read -p "$1 is not installed. Would you like to install it? Y/N: " installAsk
 
       if [[ $installAsk =~ [yY].* ]]; then
         log info "installing $1"
-        apt install $1
+        apt install "$1"
       else
         log info "Skipping installing $1"
       fi
     else
       log info "installing $1"
-      apt install $1
+      apt install "$1"
     fi
   else
     log info "$1 is already installed"
@@ -246,22 +246,26 @@ fi
 installOnce chromium-browser
 
 # Install Node
-log info "installing nodejs"
-curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-sudo apt-get install -y nodejs
+if [[ -z $(isInstalled "nodejs") ]]; then
+  log info "installing nodejs"
+  curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+  sudo apt-get install -y nodejs
 
-#   Node Configuration
-#     Configure node global packages not to require sudo
-sudo -u $USER npm config set prefix /home/$USER/.local
-sudo -u $USER PATH=/home/$USER/.local/bin/:$PATH
-#     Install some global node packages
-sudo -u $USER npm i -g chai
-sudo -u $USER npm i -g mocha
-sudo -u $USER npm i -g http-server
-sudo -u $USER npm i -g minify
-sudo -u $USER npm i -g nodemon
-sudo -u $USER npm i -g sass
-sudo -u $USER npm i -g standard
+  #   Node Configuration
+  #     Configure node global packages not to require sudo
+  sudo -u $USER npm config set prefix /home/$USER/.local
+  sudo -u $USER PATH=/home/$USER/.local/bin/:$PATH
+  #     Install some global node packages
+  sudo -u $USER npm i -g chai
+  sudo -u $USER npm i -g mocha
+  sudo -u $USER npm i -g http-server
+  sudo -u $USER npm i -g minify
+  sudo -u $USER npm i -g nodemon
+  sudo -u $USER npm i -g sass
+  sudo -u $USER npm i -g standard
+else
+  log info "nodejs is already installed"
+fi
 
 # Install Wine
 if [[ -z $(isInstalled winehq-stable) ]]; then
@@ -280,7 +284,7 @@ if [[ -z $(isInstalled winehq-stable) ]]; then
     log warn "\"focal\" describes wine for Ubuntu 20.04. For different versions check https://wiki.winehq.org/Ubuntu for the correct keyword"
     log info "The current version is $UbuntuVersion"
   else
-    addRepoCheck 'wine-builds/ubuntu/' 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main'
+    addRepoCheck "wine-builds/ubuntu/" "deb https://dl.winehq.org/wine-builds/ubuntu/ focal main"
     log info "Installing wine"
     apt install --install-recommends winehq-stable
 #   Wine configuration
