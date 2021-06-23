@@ -245,16 +245,17 @@ fi
 # Install Chromium
 installOnce chromium-browser
 
-# Install Node
-if [[ -z $(isInstalled "nodejs") ]]; then
-  log info "installing nodejs"
-  curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-  sudo apt-get install -y nodejs
+# Install nvm and configure node
+if [[ -z $(command -v "nvm") ]]; then
+  log info "installing nvm"
+  sudo -u $USER curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+  log info "installing node latest lts"
+  sudo -u $USER nvm install --lts
+  sudo -u $USER nvm use node --lts
 
-  #   Node Configuration
-  #     Configure node global packages not to require sudo
   sudo -u $USER npm config set prefix /home/$USER/.local
   sudo -u $USER PATH=/home/$USER/.local/bin/:$PATH
+
   #     Install some global node packages
   sudo -u $USER npm i -g chai
   sudo -u $USER npm i -g mocha
@@ -264,7 +265,7 @@ if [[ -z $(isInstalled "nodejs") ]]; then
   sudo -u $USER npm i -g sass
   sudo -u $USER npm i -g standard
 else
-  log info "nodejs is already installed"
+  log info "nvm is already installed"
 fi
 
 # Install Wine

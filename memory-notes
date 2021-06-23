@@ -1,0 +1,5 @@
+# sudo swapoff -a
+#   moves swap from disk to ram
+#   DO NOT ALLOW IT TO CONSUME ALL OF THE RAM
+# sudo swapon -a
+#   stops the swapoff operation
