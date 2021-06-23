@@ -4,10 +4,11 @@ if [ $# -lt 1 ]
 then
     echo "Error: missing url"
     echo "Usage:"
-    echo "  download <url>"
-    echo "  download -m <url>"
-    echo "  download <url> <start time(HH:MM:SS)> <end time(HH:MM:SS)>"
-    echo "  download <url> <start time(HH:MM:SS)> <end time(HH:MM:SS)> <file name>"
+    echo "  download <youtube/crunchyroll url>"
+    echo "  download -m <youtube url>"
+    echo "  download -p $'...User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:89.0) Gecko/20100101 Firefox/89.0\nAccept: */*...' \"Video URL\" \"output.mp4\""
+    echo "  download <twitch url> <start time(HH:MM:SS)> <end time(HH:MM:SS)>"
+    echo "  download <twitch url> <start time(HH:MM:SS)> <end time(HH:MM:SS)> <file name>"
     exit 1
 fi
 
@@ -24,6 +25,16 @@ elif [[ "$1" = "-m" ]];then
     fi
 
     youtube-dl -f 140 -o "~/Music/%(title)s.%(ext)s" "$2"
+    exit 0
+
+# Download a video from a url with headers
+elif [[ "$1" == "-p" ]];then
+    if [ $# -lt 4 ];then
+        echo "ERROR: Missing video url, headers, or output file name"
+        exit 1
+    fi
+
+    ffmpeg -headers "$2" -i "$3" -c copy "$4"
     exit 0
 
 # Download a twitch VOD
@@ -50,6 +61,6 @@ elif [[ "$1" == http?(s)://www.twitch.tv* ]];then
 elif [[ "$1" == http?(s)://www.crunchyroll.com* ]];then 
     youtube-dl --write-sub --sub-lang enUS "$1"
 else
-    echo "Unsupported domain. Only CrunchyRoll, Youtube and Twitch are supported."
+    echo "Unsupported Option"
     exit 0
 fi
