@@ -194,6 +194,13 @@ installOnce curl
 installOnce macchanger true
 #   Install git
 installOnce git
+#   Install github cli
+if [[ -z $(isInstalled gh) ]]; then
+  sudo -u $USER curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo gpg --dearmor -o /usr/share/keyrings/githubcli-archive-keyring.gpg
+  sudo -u $USER echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+  apt update
+  apt install gh
+fi
 
 #   Install vim
 installOnce vim
