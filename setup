@@ -192,6 +192,7 @@ installOnce curl
 
 #   Install Macchanger
 installOnce macchanger true
+
 #   Install git
 installOnce git
 #   Install github cli
@@ -275,6 +276,9 @@ if [[ -z $(command -v "nvm") ]]; then
 else
   log info "nvm is already installed"
 fi
+
+# Install heroku cli
+sudo -u $USER curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
 
 # Install Wine
 if [[ -z $(isInstalled winehq-stable) ]]; then
