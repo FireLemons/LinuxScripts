@@ -16,19 +16,19 @@ fi
 #   Param $2 string | The message to be logged
 function log () {
   if [[ $# -lt 2 ]]; then
-    echo "${red}ERROR: function addRepoCheck was run without sufficient parameters ${normal}"
+    echo "${red}ERROR: function log was run with insufficient parameters ${normal}"
     return
   fi
   
   case $1 in
     info)
-      echo "INFO: $2"
+      printf "${cyan}INFO: $2 ${normal}\n"
     ;;
     warn)
-      echo "${yellow}WARNING: $2 ${normal}"
+      printf "${yellow}WARNING: $2 ${normal}\n"
     ;;
     error)
-      echo "${red}ERROR: $2 ${normal}"
+      printf "${red}ERROR: $2 ${normal}\n"
     ;;
     *)
       echo "${red}ERROR: Unrecognized log level: $1 ${normal}"
