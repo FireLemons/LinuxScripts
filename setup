@@ -182,7 +182,7 @@ function installOnce () {
 
 #   Install external drive format support
 installOnce exfat-fuse
-installOnce exfat-utils
+installOnce exfatprogs
 
 #   Install file archivers
 installOnce p7zip-full
