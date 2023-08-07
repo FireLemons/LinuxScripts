@@ -257,8 +257,9 @@ installOnce chromium-browser
 # Install nvm and configure node
 if [[ -z $(command -v "nvm") ]]; then
   log info "installing nvm"
-  sudo -u $USER curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+  sudo -u $USER curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.4/install.sh | bash
   log info "installing node latest lts"
+  sudo -u $USER source ~/.bashrc
   sudo -u $USER nvm install --lts
   sudo -u $USER nvm use node --lts
 
@@ -266,8 +267,6 @@ if [[ -z $(command -v "nvm") ]]; then
   sudo -u $USER PATH=/home/$USER/.local/bin/:$PATH
 
   #     Install some global node packages
-  sudo -u $USER npm i -g chai
-  sudo -u $USER npm i -g mocha
   sudo -u $USER npm i -g http-server
   sudo -u $USER npm i -g minify
   sudo -u $USER npm i -g nodemon
