@@ -1,0 +1,74 @@
+#!/bin/bash
+
+# Set colors if available
+if test -t 1; then # if terminal
+    ncolors=$(which tput > /dev/null && tput colors) # supports color
+    if test -n "$ncolors" && test $ncolors -ge 8; then
+        cyan="$(tput setaf 6)"
+        normal="$(tput sgr0)"
+        red="$(tput setaf 1)"
+        yellow="$(tput setaf 3)"
+    fi
+fi
+
+# Colorized output
+#   Param $1 string | The logging level: info, warning, or error
+#   Param $2 string | The message to be logged
+function log () {
+  if [[ $# -lt 2 ]]; then
+    echo "${red}ERROR: function log was run with insufficient parameters ${normal}"
+    return
+  fi
+  
+  case $1 in
+    info)
+      printf "${cyan}INFO: $2 ${normal}\n"
+    ;;
+    warn)
+      printf "${yellow}WARNING: $2 ${normal}\n"
+    ;;
+    fail)
+      printf "${red}ERROR: $2 ${normal}\n"
+    ;;
+    *)
+      echo "${red}ERROR: Unrecognized log level: $1 ${normal}"
+    ;;
+  esac
+}
+
+function print_usage_hint () {
+  log info "Usage:"
+  log info "  cutVideoExact -i video_path -ss start_time -t duration"
+    exit 1
+}
+
+if [ $# -lt 3 ]
+then
+  log fail "Error: insufficient args"
+  print_usage_hint
+fi
+
+while getopts "i:" flag; do
+  case $flag in
+    i)
+      file_path="$OPTARG"
+    ;;
+
+    \?)
+      # ignore unexpected flags because of passing to ffmpeg
+    ;;
+  esac
+done
+
+if [ -z "$file_path" ]; then
+  log fail "Error: input file path is required"
+  print_usage_hint
+fi
+
+file_name=$(basename -- "$file_path")
+      log info "$file_name"
+file_extension="${file_name##*.}"
+
+ffmpeg "$@" -c:v libx264 -c:a aac temp.mp4
+
+echo "Video output to temp.$file_extension"
