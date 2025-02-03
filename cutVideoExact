@@ -48,7 +48,7 @@ then
   print_usage_hint
 fi
 
-while getopts "i:" flag; do
+while getopts ":i:" flag; do
   case $flag in
     i)
       file_path="$OPTARG"
@@ -66,7 +66,6 @@ if [ -z "$file_path" ]; then
 fi
 
 file_name=$(basename -- "$file_path")
-      log info "$file_name"
 file_extension="${file_name##*.}"
 
 ffmpeg "$@" -c:v libx264 -c:a aac temp.mp4
