@@ -1,0 +1,14 @@
+#!/bin/bash
+
+if ! command -v cwebp &> /dev/null; then
+  echo "command cwebp not found. Exiting"
+  exit 1
+fi
+
+for file in $(ls *.png)
+do
+  file_without_extension="${file%.*}"
+
+  cwebp -lossless -q 100 $file -o $file_without_extension.webp && rm $file
+done
+
