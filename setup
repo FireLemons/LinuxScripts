@@ -231,49 +231,49 @@ if isUserApproved "Would you like to set up a dev environment?"; then
       log info "gh is already installed"
     fi
   fi
+
+  if isUserApproved "Would you like to set up a casa environment?"; then
+    if ! isInstalled heroku; then
+      log info "Installing heroku cli"
+      curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
+      heroku login
+    fi
+
+    # if ! isInstalled postgresql-12; then
+    #   log info "Installing postgres 12"
+    #   log info "Adding thr postgres repo"
+    #   sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+
+    #   #     Add the repo key to your keyring:
+    #   sudo -u $USER wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /usr/share/keyrings/postgres-archive-keyring.gpg
+
+    #   log info "  Open /etc/apt/sources.list.d/pgdg.list with super user permissions so you are allowed to write to the file"
+    #   log info "    Example using vim:"
+    #   log info "      sudo vim /etc/apt/sources.list.d/pgdg.list"
+    #   log info "    Paste \"[signed-by=/usr/share/keyrings/postgres-archive-keyring.gpg]\" between \"deb\" and \"http://apt.postgresql...\""
+    #   log info "      Example: deb [signed-by=/usr/share/keyrings/postgres-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt jammy-pgdg main"
+    #   log info "    Save the file"
+    #   log info "  Continue after the key configuration"
+    #   waitForUser
+
+    #   apt update
+    #   apt install postgresql-12
+
+    #   #   Turn the server on
+    #   systemctl start postgresql
+
+    #   #   Add user to Postgres:
+    #   sudo -u postgres psql -c "CREATE USER $USER WITH CREATEDB"
+    # fi
+
+    # if installOnce rbenv; then
+    #   sudo -u $USER rbenv init
+    #   sudo -u $USER mkdir -p "$(rbenv root)"/plugins
+    #   sudo -u $USER git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
+    #   sudo -u $USER rbenv install 3.3.6
+    # fi
+  fi
 fi
-#   if isUserApproved "Would you like to set up a casa environment?"; then
-#     if ! isInstalled heroku; then
-#       log info "Installing heroku cli"
-#       sudo -u $USER curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
-#       sudo -u $USER heroku login
-#     fi
-
-#     if ! isInstalled postgresql-12; then
-#       log info "Installing postgres 12"
-#       log info "Adding thr postgres repo"
-#       sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
-
-#       #     Add the repo key to your keyring:
-#       sudo -u $USER wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /usr/share/keyrings/postgres-archive-keyring.gpg
-
-#       log info "  Open /etc/apt/sources.list.d/pgdg.list with super user permissions so you are allowed to write to the file"
-#       log info "    Example using vim:"
-#       log info "      sudo vim /etc/apt/sources.list.d/pgdg.list"
-#       log info "    Paste \"[signed-by=/usr/share/keyrings/postgres-archive-keyring.gpg]\" between \"deb\" and \"http://apt.postgresql...\""
-#       log info "      Example: deb [signed-by=/usr/share/keyrings/postgres-archive-keyring.gpg] http://apt.postgresql.org/pub/repos/apt jammy-pgdg main"
-#       log info "    Save the file"
-#       log info "  Continue after the key configuration"
-#       waitForUser
-
-#       apt update
-#       apt install postgresql-12
-
-#       #   Turn the server on
-#       systemctl start postgresql
-
-#       #   Add user to Postgres:
-#       sudo -u postgres psql -c "CREATE USER $USER WITH CREATEDB"
-#     fi
-
-#     if installOnce rbenv; then
-#       sudo -u $USER rbenv init
-#       sudo -u $USER mkdir -p "$(rbenv root)"/plugins
-#       sudo -u $USER git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)"/plugins/ruby-build
-#       sudo -u $USER rbenv install 3.3.6
-#     fi
-#   fi
-# fi
 
 if isUserApproved "Would you like to set up a gaming environment?"; then
   if ! isInstalled steam; then
