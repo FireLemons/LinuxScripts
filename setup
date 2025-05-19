@@ -239,6 +239,14 @@ if isUserApproved "Would you like to set up a dev environment?"; then
       heroku login
     fi
 
+    if ! isInstalled slack; then
+      if isUserApproved "Would you like to install slack?"; then
+        log info "go to https://slack.com/downloads/linux and download the .deb"
+        log info "the link is not easy to spot"
+        log info "sudo apt install download.deb"
+      fi
+    fi
+
     if ! isInstalled postgresql-12; then
       log info "Installing postgres 12"
       log info "Adding thr postgres repo"
