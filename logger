@@ -1,5 +1,4 @@
 #!/bin/bash
-# Quick setup for a fresh linux install
 
 # Set colors if available
 if test -t 1; then # if terminal
