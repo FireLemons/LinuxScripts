@@ -280,6 +280,7 @@ if isUserApproved "Would you like to set up a dev environment?"; then
       log info "Installing ruby via rbenv"
 
       installOnce libyaml-dev
+      installOnce zlib1g-dev
 
       git clone https://github.com/rbenv/rbenv.git $RBENV_ROOT
 
@@ -299,7 +300,7 @@ if isUserApproved "Would you like to set up a dev environment?"; then
 
       git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)/plugins/ruby-build"
 
-      rbenv install 3.3.6
+      rbenv install 3.3.8
     fi
 
     #if [ ! -d ~/Projects/casa ]; then
