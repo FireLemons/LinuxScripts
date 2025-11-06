@@ -9,13 +9,19 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 verify_non_sudo_user
 
+create_gaming_folder_shortcut () {
+  mkdir -p /home/$USER/.wine/drive_c/users/$USER/Games
+  cd /home/$USER/
+  ln -s .wine/drive_c/users/$USER/Games Games
+}
+
 install_flatpak_gaming_apps () {
   log info "installing lutris and steam via flatpak"
   flatpak install flathub com.valvesoftware.Steam
   flatpak install flathub net.lutris.Lutris
 }
 
-if ! is_installed winehq-stable; then
+install_wine () {
   sudo dpkg --add-architecture i386 && sudo apt update
   
   log info "adding wine repo"
@@ -34,10 +40,13 @@ if ! is_installed winehq-stable; then
 
   log info "Configuring wine"
   winecfg
-  # Create Games directory from wine home
-  mkdir -p /home/$USER/.wine/drive_c/users/$USER/Games
-  cd /home/$USER/
-  ln -s .wine/drive_c/users/$USER/Games Games
+}
+
+install_flatpak_gaming_apps
+
+if ! is_installed winehq-stable; then
+  install_wine &&
+  create_gaming_folder_shortcut
 fi
 
 sudo apt autoremove
