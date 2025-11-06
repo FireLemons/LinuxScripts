@@ -86,15 +86,19 @@ install_general_packages () {
   fi
 }
 
+print_keyboard_shortcut_hints () {
+  log info "The following keybinds should be modified"
+  log info "  Go to settings -> keybinds -> navigation"
+  log info "  Hide All Normal Windows -> Super + D"
+  log info "  Switch Windows -> Alt + Tab"
+  log info "    This will unbind Alt + Tab from switching applications"
+}
+
 set_vim_as_default_editor () {
   log info "Configuring vim as the default editor"
   log warn "Pick vim.basic not vim.tiny"
   sudo update-alternatives --config editor
   git config --global core.editor vim
-}
-
-waitForUser () {
-  read -p "Press enter to continue"
 }
 
 verify_non_sudo_user
@@ -104,4 +108,6 @@ install_flatpak_general_apps
 
 log info "Clean Up"
 sudo apt autoremove
+
+print_keyboard_shortcut_hints
 
