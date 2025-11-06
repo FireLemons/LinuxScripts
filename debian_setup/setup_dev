@@ -88,15 +88,17 @@ install_flatpak_developer_apps () {
 }
 
 install_nodejs () {
-  if nvm --version &> /dev/null; then
+  if ! nvm --version &> /dev/null; then
     log info "Setting up a node environment"
     log info "  find the nvm install command at https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating"
     log info "  it relies on the version number which updates frequently"
     log info "    continue after nvm is installed"
     wait_for_user
-    export NVM_DIR="/home/$USER/.nvm"
+
     # Load nvm
+    export NVM_DIR="/home/$USER/.nvm"
     [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
     log info "  installing latest LTS node version"
     nvm install --lts
     log info "  setting latest LTS node version as default"
