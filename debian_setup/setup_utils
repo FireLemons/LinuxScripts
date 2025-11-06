@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+# The most portable bash shebang
+
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+. "$SCRIPT_DIR/../logger"
+
+install_once () {
+  if [[ -z $1 ]]; then
+    log error "function install_once was run without parameters"
+    log info "  Example usage:"
+    log info "    install_once \"vim\""
+    return -1
+  fi
+
+  log info "installing $1"
+
+  if is_installed $1; then
+    log info "$1 is already installed"
+    return 1
+  else
+    sudo apt install "$1"
+    return 0
+  fi
+}
+
+is_installed () {
+  if [[ -z "$1" ]]; then
+    log error "function is_installed requires the name of the package to check"
+    log info "  Example usage:"
+    log info "    is_installed \"vim\""
+    return -1
+  fi
+
+  if [[ $(dpkg -s "$1" 2>/dev/null | grep Status) == *"installed" ]] || flatpak list --app --columns=application | grep -Fxq "$1"; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+is_user_approved () {
+  if [ $# -lt 1 ]; then
+    log fail "function prompUser requires a prompt message"
+    log info "  Example usage:"
+    log info "    is_user_approved \"Are you sure?\""
+    return -1
+  else
+    read -p "$1 Y/N:" userResponse
+
+    if [[ $userResponse =~ [yY].* ]]; then
+      return 0
+    else
+      return 1
+    fi
+  fi
+}
+
+verify_non_sudo_user () {
+  if [ "$EUID" -eq 0 ]; then
+    log fail "script cannot be ran as sudo"
+    log info "  Exiting"
+
+    exit 1
+  fi
+}
+
+wait_for_user () {
+  read -p "Press enter to continue"
+}
+

@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # The most portable bash shebang
 
-# TEST=true # toggle test mode
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 . "$SCRIPT_DIR/../logger"
+. "$SCRIPT_DIR/setup_utils"
 
 add_ytdlp_to_path () {
   ADD_LOCAL_BIN_TO_PATH_LINE="export PATH=\$PATH:/home/$USER/.local/bin"
@@ -72,61 +72,10 @@ install_general_packages () {
     log info "continue after the download"
     mkdir -p /home/$USER/.local/bin
     curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /home/$USER/.local/bin/yt-dlp
-    waitForUser
+    wait_for_user
     chmod a+rx "/home/$USER/.local/bin/yt-dlp"
     
     add_ytdlp_to_path
-  fi
-}
-
-install_once () {
-  if [[ -z $1 ]]; then
-    log error "function install_once was run without parameters"
-    log info "  Example usage:"
-    log info "    install_once \"vim\""
-    return -1
-  fi
-
-  log info "installing $1"
-
-  if is_installed $1; then
-    log info "$1 is already installed"
-    return 1
-  else
-    sudo apt install "$1"
-    return 0
-  fi
-}
-
-is_installed () {
-  if [[ -z "$1" ]]; then
-    log error "function is_installed requires the name of the package to check"
-    log info "  Example usage:"
-    log info "    is_installed \"vim\""
-    return -1
-  fi
-
-  if [[ $(dpkg -s "$1" 2>/dev/null | grep Status) == *"installed" ]] || flatpak list --app --columns=application | grep -Fxq "$1"; then
-    return 0
-  else
-    return 1
-  fi
-}
-
-is_user_approved () {
-  if [ $# -lt 1 ]; then
-    log fail "function prompUser requires a prompt message"
-    log info "  Example usage:"
-    log info "    is_user_approved \"Are you sure?\""
-    return -1
-  else
-    read -p "$1 Y/N:" userResponse
-
-    if [[ $userResponse =~ [yY].* ]]; then
-      return 0
-    else
-      return 1
-    fi
   fi
 }
 
@@ -135,15 +84,6 @@ set_vim_as_default_editor () {
   log warn "Pick vim.basic not vim.tiny"
   sudo update-alternatives --config editor
   git config --global core.editor vim
-}
-
-verify_non_sudo_user () {
-  if [ "$EUID" -eq 0 ]; then
-    log fail "script cannot be ran as sudo"
-    log info "  Exiting"
-
-    exit 1
-  fi
 }
 
 waitForUser () {

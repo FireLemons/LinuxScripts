@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# The most portable bash shebang
+
+# TEST=true # toggle test mode
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+. "$SCRIPT_DIR/../logger"
+. "$SCRIPT_DIR/setup_utils"
+
+verify_non_sudo_user
+
+install_flatpak_gaming_apps () {
+  log info "installing lutris and steam via flatpak"
+  flatpak install flathub com.valvesoftware.Steam
+  flatpak install flathub net.lutris.Lutris
+}
+
+if ! is_installed winehq-stable; then
+  sudo dpkg --add-architecture i386 && sudo apt update
+  
+  log info "adding wine repo"
+  sudo mkdir -pm755 /etc/apt/keyrings
+  wget -O - https://dl.winehq.org/wine-builds/winehq.key | sudo gpg --dearmor -o /etc/apt/keyrings/winehq-archive.key -
+
+  log info "printing debian distribution name"
+  cat /etc/os-release | grep "VERSION_CODENAME"
+
+  log info "go to https://gitlab.winehq.org/wine/wine/-/wikis/Debian-Ubuntu#add-the-repository"
+  log info "run the command to add the correct repository matching the distribution name"
+  wait_for_user
+
+  sudo apt update
+  sudo apt install --install-recommends winehq-stable
+
+  log info "Configuring wine"
+  winecfg
+  # Create Games directory from wine home
+  mkdir -p /home/$USER/.wine/drive_c/users/$USER/Games
+  cd /home/$USER/
+  ln -s .wine/drive_c/users/$USER/Games Games
+fi
+
+sudo apt autoremove
+
