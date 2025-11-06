@@ -17,8 +17,9 @@ install_once flatpak
 install_once gnome-software-plugin-flatpak
 flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
 
-install_once nvidia-driver
-
+if is_user_approved "would you like to install nvidia drivers?"; then
+  install_once nvidia-driver
+fi
 sudo apt autoremove
 
 # Describe manual configuration for bypassing the user prompt during boot
