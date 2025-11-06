@@ -4,14 +4,37 @@
 # TEST=true # toggle test mode
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-. "$SCRIPT_DIR/logger"
-USER=flysy
+. "$SCRIPT_DIR/../logger"
 
-installOnce () {
+configure_github_ssh_keys () {
+  if ! test -f "/home/$USER/.ssh/id_ed25519"; then
+    log info "setting up ssh keys for github"
+    log info "  don't set a file name for the key"
+    log info "  don't set a passphrase for the key"
+    ssh-keygen -t ed25519 -C "shenyang128@proton.me"
+    log info "now run eval \"\$(ssh-agent -s)\""
+    log info "then run eval ssh-add ~/.ssh/id_ed25519"
+    log info "then go to https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account and follow the instructions"
+    log info "continue when ready"
+    waitForUser
+  fi
+}
+
+install_flatpak_developer_apps () {
+  flatpak install flathub com.visualstudio.code
+  
+  log info "To change the tab size to 2 spaces, go to settings then search tabsize"
+  
+  if ! isInstalled slack; then
+    flatpak install flathub com.slack.Slack
+  fi
+}
+
+install_once () {
   if [[ -z $1 ]]; then
-    log error "function installOnce was run without parameters"
+    log error "function install_once was run without parameters"
     log info "  Example usage:"
-    log info "    installOnce \"vim\""
+    log info "    install_once \"vim\""
     return -1
   fi
 
@@ -58,147 +81,26 @@ isUserApproved () {
   fi
 }
 
+verify_non_sudo_user () {
+  if [ "$EUID" -eq 0 ]; then
+    log fail "script cannot be ran as sudo"
+    log info "  Exiting"
+
+    exit 1
+  fi
+}
+
 waitForUser () {
   read -p "Press enter to continue"
 }
 
-# Check if running as sudo
-if [ "$EUID" -eq 0 ]; then
-  log fail "script cannot be ran as sudo"
-  log info "  Exiting"
-
-  exit 1
-fi
-
-# Ensure /usr/local/bin has been added to PATH
-if [[ $PATH != *"/usr/local/bin"* ]]; then
-  log info "Adding /usr/local/bin to \$PATH"
-
-  ADD_USR_LOCAL_BIN_TO_PATH_LINE="export PATH=\$PATH:/usr/local/bin"
-  if ! grep -q "$ADD_USR_LOCAL_BIN_TO_PATH_LINE" $BASHRC_PATH; then
-    echo "" >> $BASHRC_PATH
-    echo "$ADD_LOCAL_BIN_TO_PATH_LINE" >> $BASHRC_PATH
-  fi
-fi
-
-# Enable tab autocomplete cycling for terminal
-BASHRC_PATH="/home/$USER/.bashrc"
-AUTOCOMPLETE_CYCLING_CONFIGURATION_LINE="bind TAB:menu-complete"
-
-if ! grep -q "$AUTOCOMPLETE_CYCLING_CONFIGURATION_LINE" $BASHRC_PATH; then
-  echo "" >> $BASHRC_PATH
-  echo "# cycle through tab autocomplete options instead of stopping at shared substrings" >> $BASHRC_PATH
-  echo "$AUTOCOMPLETE_CYCLING_CONFIGURATION_LINE" >> $BASHRC_PATH
-  log info "Configured .bashrc to cycle through autocomplete options"
-fi
-
-# Update existing packages
-log info "Updating Installed Packages"
-sudo apt update
-sudo apt upgrade
-
-# Install app images
-APP_IMAGE_PATH="/home/$USER/AppImages"
-mkdir -p "/home/$USER/AppImages"
-installOnce libfuse2t64
-log info "App Images"
-log info "  Install the desired app images from the list below into ~/AppImages"
-log info "    keepassxc https://keepassxc.org/download/"
-log info "    krita https://krita.org/en/download/"
-log info "    tagspaces https://www.tagspaces.org/downloads/"
-log info "  continue when all app images are in the directory"
-waitForUser
-chmod +x $APP_IMAGE_PATH/*
-
-log info "  Now connect them with the following commands"
-log info "    cd /usr/local/bin"
-log info "    sudo ln -s ~/AppImages/<AppImage> command_name"
-log info "  Make sure the password vault has been downloaded and is accessible"
-log info "  continue when ready"
-waitForUser
-
-installOnce curl
-
-if ! which brave-browser >/dev/null 2>&1; then
-  if isUserApproved "would you like to install brave browser?"; then
-    curl -fsS https://dl.brave.com/install.sh | sh
-  fi
-fi
-
-if ! isInstalled chromium-browser; then
-  if isUserApproved "would you like to install chromium browser?"; then
-    installOnce chromium-browser
-  fi
-fi
-
-installOnce ffmpeg
-if ! isInstalled ffmpegthumbnailer; then
-  if isUserApproved "would you like to install the ffmpeg thumbnailer for videos?"; then
-    installOnce ffmpegthumbnailer
-  fi
-fi
-
-if installOnce git; then
-  git config --global user.name "Shen Yang"
-  git config --global user.email "shenyang128@proton.me"
-  log info "configured email and name for git"
-fi
-
-installOnce p7zip-full # for .7z compressed files
-# Provides access to software that may be subject to patent or license restrictions
-# Allows some DRM to be played like for mp3s and DVDs
-installOnce ubuntu-restricted-extras
-
-if installOnce vim; then
-  log info "Configuring vim as the default editor"
-  log warn "Pick vim.basic not vim.tiny"
-  update-alternatives --config editor
-  git config --global core.editor vim
-fi
-
-if ! snap list vlc >/dev/null 2>&1; then
-  log info "installing vlc"
-  sudo snap install vlc
-fi
-
-if ! test -f "/home/$USER/.local/bin/yt-dlp"; then
-  log info "installing yt-dlp"
-  log info "yt-dlp has an asynchronous download"
-  log info "continue after the download"
-  mkdir -p /home/$USER/.local/bin
-  curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /home/$USER/.local/bin/yt-dlp
-  waitForUser
-  chmod a+rx "/home/$USER/.local/bin/yt-dlp"
-
-  ADD_LOCAL_BIN_TO_PATH_LINE="export PATH=\$PATH:/home/$USER/.local/bin"
-  if ! grep -q "$ADD_LOCAL_BIN_TO_PATH_LINE" $BASHRC_PATH; then
-    echo "" >> $BASHRC_PATH
-    echo "# add yt-dlp folder to path" >> $BASHRC_PATH
-    echo "$ADD_LOCAL_BIN_TO_PATH_LINE" >> $BASHRC_PATH
-  fi
-fi
+verify_non_sudo_user
 
 if isUserApproved "Would you like to set up a dev environment?"; then
-  if ! isInstalled code; then
-    if isUserApproved "would you like to install vscode?"; then
-      log info "go to https://code.visualstudio.com/download and download the .deb"
-      log info "then sudo apt install download.deb"
-    fi
-  fi
+  install_flatpak_developer_apps
+  configure_github_ssh_keys
 
-  if ! test -f "/home/$USER/.ssh/id_ed25519"; then
-    log info "setting up ssh keys for github"
-    log info "  don't set a file name for the key"
-    log info "  don't set a passphrase for the key"
-    ssh-keygen -t ed25519 -C "shenyang128@proton.me"
-    log info "now run eval \"\$(ssh-agent -s)\""
-    log info "then run eval ssh-add ~/.ssh/id_ed25519"
-    log info "then go to https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account and follow the instructions"
-    log info "continue when ready"
-    waitForUser
-  fi
-
-  if nvm --version >/dev/null 2>&1; then # I have no idea why it's reversed
+  if nvm --version >/dev/null 2>&1; then
     log info "Setting up a node environment"
     log info "  find the nvm install command at https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating"
     log info "  it relies on the version number which updates frequently"
@@ -239,14 +141,6 @@ if isUserApproved "Would you like to set up a dev environment?"; then
       heroku login
     fi
 
-    if ! isInstalled slack; then
-      if isUserApproved "Would you like to install slack?"; then
-        log info "go to https://slack.com/downloads/linux and download the .deb"
-        log info "the link is not easy to spot"
-        log info "sudo apt install download.deb"
-      fi
-    fi
-
     if ! isInstalled postgresql-12; then
       log info "Installing postgres 12"
       log info "Adding thr postgres repo"
@@ -279,8 +173,8 @@ if isUserApproved "Would you like to set up a dev environment?"; then
     if [ ! -d $RBENV_ROOT ]; then
       log info "Installing ruby via rbenv"
 
-      installOnce libyaml-dev
-      installOnce zlib1g-dev
+      install_once libyaml-dev
+      install_once zlib1g-dev
 
       git clone https://github.com/rbenv/rbenv.git $RBENV_ROOT
 
@@ -303,7 +197,7 @@ if isUserApproved "Would you like to set up a dev environment?"; then
       rbenv install 3.3.8
     fi
 
-    #if [ ! -d ~/Projects/casa ]; then
+    if [ ! -d ~/Projects/casa ]; then
       mkdir -p ~/Projects
       log info "Creating casa directory"
 
@@ -313,15 +207,13 @@ if isUserApproved "Would you like to set up a dev environment?"; then
       bundle
       # A hack to get the setup to work
       bundle exec rails db:reset
-      sudo -u postgres psql -d casa_test -c "CREATE EXTENSION pg_stat_statements;"
-      bundle exec rails db:reset
       bundle exec rails db:migrate
       bundle exec rake after_party:run
 
       npm i
       npm run build
       npm run build:css
-    #fi
+    fi
   fi
 fi
 
@@ -365,8 +257,9 @@ fi
 # Optional Section (bottom)
 if ! isInstalled macchanger; then
   if isUserApproved "Would you like to install macchanger?"; then
-    installOnce macchanger
+    install_once macchanger
   fi
 fi
 
-# sudo apt autoremove
+sudo apt autoremove
+

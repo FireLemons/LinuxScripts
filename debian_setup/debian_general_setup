@@ -1,0 +1,160 @@
+#!/usr/bin/env bash
+# The most portable bash shebang
+
+# TEST=true # toggle test mode
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
+. "$SCRIPT_DIR/../logger"
+
+add_ytdlp_to_path () {
+  ADD_LOCAL_BIN_TO_PATH_LINE="export PATH=\$PATH:/home/$USER/.local/bin"
+  if ! grep -q "$ADD_LOCAL_BIN_TO_PATH_LINE" $BASHRC_PATH; then
+    echo "" >> $BASHRC_PATH
+    echo "# add yt-dlp folder to path" >> $BASHRC_PATH
+    echo "$ADD_LOCAL_BIN_TO_PATH_LINE" >> $BASHRC_PATH
+  fi
+}
+
+configure_terminal_autocomplete_cycling () {
+  BASHRC_PATH="/home/$USER/.bashrc"
+  AUTOCOMPLETE_CYCLING_CONFIGURATION_LINE="bind TAB:menu-complete"
+
+  if ! grep -q "$AUTOCOMPLETE_CYCLING_CONFIGURATION_LINE" $BASHRC_PATH; then
+    echo "" >> $BASHRC_PATH
+    echo "# cycle through tab autocomplete options instead of stopping at shared substrings" >> $BASHRC_PATH
+    echo "$AUTOCOMPLETE_CYCLING_CONFIGURATION_LINE" >> $BASHRC_PATH
+    log info "Configured .bashrc to cycle through autocomplete options"
+  fi
+}
+
+install_flatpak_general_apps () {
+  flatpak install flathub org.kde.krita
+  flatpak install flathub org.keepassxc.KeePassXC
+  flatpak install flathub org.videolan.VLC
+  
+  # Optionals
+  if ! isInstalled "com.brave.Browser"; then
+    if isUserApproved "would you like to install brave browser?"; then
+      flatpak install flathub com.brave.Browser
+    fi
+  else
+    log info "brave browser is already installed"
+  fi
+  
+  if ! isInstalled "org.chromium.Chromium"; then
+    if isUserApproved "would you like to install chromium browser?"; then
+      flatpak install flathub org.chromium.Chromium
+    fi
+  else
+    log info "chromium browser is already installed"
+  fi
+}
+
+install_general_packages () {
+  install_once curl
+  install_once ffmpeg
+  
+  if install_once git; then
+    git config --global user.name "Shen Yang"
+    git config --global user.email "shenyang128@proton.me"
+    log info "configured email and name for git"
+  fi
+  
+  install_once p7zip-full
+
+  if install_once vim; then
+    set_vim_as_default_editor
+  fi
+  
+  if ! test -f "/home/$USER/.local/bin/yt-dlp"; then
+    log info "installing yt-dlp"
+    log info "yt-dlp has an asynchronous download"
+    log info "continue after the download"
+    mkdir -p /home/$USER/.local/bin
+    curl -L https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp -o /home/$USER/.local/bin/yt-dlp
+    waitForUser
+    chmod a+rx "/home/$USER/.local/bin/yt-dlp"
+    
+    add_ytdlp_to_path
+  fi
+}
+
+install_once () {
+  if [[ -z $1 ]]; then
+    log error "function install_once was run without parameters"
+    log info "  Example usage:"
+    log info "    install_once \"vim\""
+    return -1
+  fi
+
+  log info "installing $1"
+
+  if isInstalled $1; then
+    log info "$1 is already installed"
+    return 1
+  else
+    sudo apt install "$1"
+    return 0
+  fi
+}
+
+isInstalled () {
+  if [[ -z "$1" ]]; then
+    log error "function isInstalled requires the name of the package to check"
+    log info "  Example usage:"
+    log info "    isInstalled \"vim\""
+    return -1
+  fi
+
+  if [[ $(dpkg -s "$1" 2>/dev/null | grep Status) == *"installed" ]] || flatpak list --app --columns=application | grep -Fxq "$1"; then
+    return 0
+  else
+    return 1
+  fi
+}
+
+isUserApproved () {
+  if [ $# -lt 1 ]; then
+    log fail "function prompUser requires a prompt message"
+    log info "  Example usage:"
+    log info "    isUserApproved \"Are you sure?\""
+    return -1
+  else
+    read -p "$1 Y/N:" userResponse
+
+    if [[ $userResponse =~ [yY].* ]]; then
+      return 0
+    else
+      return 1
+    fi
+  fi
+}
+
+set_vim_as_default_editor () {
+  log info "Configuring vim as the default editor"
+  log warn "Pick vim.basic not vim.tiny"
+  sudo update-alternatives --config editor
+  git config --global core.editor vim
+}
+
+verify_non_sudo_user () {
+  if [ "$EUID" -eq 0 ]; then
+    log fail "script cannot be ran as sudo"
+    log info "  Exiting"
+
+    exit 1
+  fi
+}
+
+waitForUser () {
+  read -p "Press enter to continue"
+}
+
+verify_non_sudo_user
+configure_terminal_autocomplete_cycling
+install_general_packages
+install_flatpak_general_apps
+
+log info "Clean Up"
+sudo apt autoremove
+
