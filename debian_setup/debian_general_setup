@@ -33,16 +33,16 @@ install_flatpak_general_apps () {
   flatpak install flathub org.videolan.VLC
   
   # Optionals
-  if ! isInstalled "com.brave.Browser"; then
-    if isUserApproved "would you like to install brave browser?"; then
+  if ! is_installed "com.brave.Browser"; then
+    if is_user_approved "would you like to install brave browser?"; then
       flatpak install flathub com.brave.Browser
     fi
   else
     log info "brave browser is already installed"
   fi
   
-  if ! isInstalled "org.chromium.Chromium"; then
-    if isUserApproved "would you like to install chromium browser?"; then
+  if ! is_installed "org.chromium.Chromium"; then
+    if is_user_approved "would you like to install chromium browser?"; then
       flatpak install flathub org.chromium.Chromium
     fi
   else
@@ -89,7 +89,7 @@ install_once () {
 
   log info "installing $1"
 
-  if isInstalled $1; then
+  if is_installed $1; then
     log info "$1 is already installed"
     return 1
   else
@@ -98,11 +98,11 @@ install_once () {
   fi
 }
 
-isInstalled () {
+is_installed () {
   if [[ -z "$1" ]]; then
-    log error "function isInstalled requires the name of the package to check"
+    log error "function is_installed requires the name of the package to check"
     log info "  Example usage:"
-    log info "    isInstalled \"vim\""
+    log info "    is_installed \"vim\""
     return -1
   fi
 
@@ -113,11 +113,11 @@ isInstalled () {
   fi
 }
 
-isUserApproved () {
+is_user_approved () {
   if [ $# -lt 1 ]; then
     log fail "function prompUser requires a prompt message"
     log info "  Example usage:"
-    log info "    isUserApproved \"Are you sure?\""
+    log info "    is_user_approved \"Are you sure?\""
     return -1
   else
     read -p "$1 Y/N:" userResponse
