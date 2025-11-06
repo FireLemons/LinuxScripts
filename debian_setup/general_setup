@@ -77,6 +77,13 @@ install_general_packages () {
     
     add_ytdlp_to_path
   fi
+  
+  # Optional Section
+  if ! is_installed macchanger; then
+    if is_user_approved "Would you like to install macchanger?"; then
+      install_once macchanger
+    fi
+  fi
 }
 
 set_vim_as_default_editor () {
