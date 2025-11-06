@@ -20,6 +20,8 @@ flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.f
 if is_user_approved "would you like to install nvidia drivers?"; then
   install_once nvidia-driver
 fi
+
+log info "Clean Up"
 sudo apt autoremove
 
 # Describe manual configuration for bypassing the user prompt during boot
