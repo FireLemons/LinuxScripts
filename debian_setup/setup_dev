@@ -34,6 +34,21 @@ add_postgres_repo () {
   wait_for_user
 }
 
+add_rbenv_executables_to_path () {
+  log info "adding rbenv bin to path"
+
+  BASHRC_PATH=~/.bashrc
+
+  ADD_RBENV_BIN_TO_PATH_LINE="export PATH=\$PATH:/home/$USER/.rbenv/bin"
+  if ! grep -q "$ADD_RBENV_BIN_TO_PATH_LINE" $BASHRC_PATH; then
+    echo "" >> $BASHRC_PATH
+    echo "# add rbenv to path" >> $BASHRC_PATH
+    echo "$ADD_RBENV_BIN_TO_PATH_LINE" >> $BASHRC_PATH
+  fi
+
+  export PATH=$PATH:/home/flysy/.rbenv/bin
+}
+
 configure_casa () {
   cd ~/Projects/casa
 
@@ -88,7 +103,7 @@ install_flatpak_developer_apps () {
 }
 
 install_nodejs () {
-  if ! nvm --version &> /dev/null; then
+  if [ ! -s "$HOME/.nvm/nvm.sh" ]; then
     log info "Setting up a node environment"
     log info "  find the nvm install command at https://github.com/nvm-sh/nvm?tab=readme-ov-file#installing-and-updating"
     log info "  it relies on the version number which updates frequently"
@@ -124,15 +139,9 @@ install_rbenv () {
 
   git clone https://github.com/rbenv/rbenv.git $RBENV_ROOT
 
-  ADD_RBENV_BIN_TO_PATH_LINE="export PATH=\$PATH:/home/$USER/.rbenv/bin"
-  if ! grep -q "$ADD_RBENV_BIN_TO_PATH_LINE" $BASHRC_PATH; then
-    echo "" >> $BASHRC_PATH
-    echo "# add rbenv to path" >> $BASHRC_PATH
-    echo "$ADD_RBENV_BIN_TO_PATH_LINE" >> $BASHRC_PATH
-  fi
+  add_rbenv_executables_to_path
 
-  export PATH=$PATH:/home/flysy/.rbenv/bin
-
+  log info "Configuring rbenv"
   eval "$(rbenv init - --no-rehash bash)"
 
   git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)/plugins/ruby-build"
@@ -169,10 +178,12 @@ if ! is_installed gh; then
 fi
 
 if is_user_approved "Would you like to set up a casa environment?"; then
-  if ! is_installed heroku; then
+  if ! which heroku > /dev/null 2>&1; then
     log info "Installing heroku cli"
     curl https://cli-assets.heroku.com/install.sh | sh
     heroku login
+  else
+    log info "Skipping heroku install. Heroku is already installed."
   fi
 
   if ! is_installed postgresql-12; then
