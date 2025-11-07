@@ -59,6 +59,8 @@ configure_casa () {
   bundle exec rails db:migrate
   bundle exec rake after_party:run
 
+  load_nvm
+  nvm install 22
   npm i
   npm run build
   npm run build:css
@@ -110,9 +112,7 @@ install_nodejs () {
     log info "    continue after nvm is installed"
     wait_for_user
 
-    # Load nvm
-    export NVM_DIR="/home/$USER/.nvm"
-    [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+    load_nvm
 
     log info "  installing latest LTS node version"
     nvm install --lts
@@ -160,6 +160,11 @@ install_vscode () {
   wait_for_user
 
   log info "To change the tab size to 2 spaces, go to settings then search tabsize"
+}
+
+load_nvm () {
+  export NVM_DIR="/home/$USER/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 }
 
 verify_non_sudo_user
