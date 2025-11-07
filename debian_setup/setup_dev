@@ -143,13 +143,18 @@ install_rbenv () {
 
   log info "Configuring rbenv"
   eval "$(rbenv init - --no-rehash bash)"
+  echo 'eval "$(rbenv init - bash)"' >> ~/.bashrc
 
   git clone https://github.com/rbenv/ruby-build.git "$(rbenv root)/plugins/ruby-build"
 }
 
 install_ruby () {
   log info "Installing ruby"
-  rbenv install "$(cat ~/Projects/casa/.ruby-version)"
+
+  RUBY_VERSION="$(cat ~/Projects/casa/.ruby-version)"
+
+  rbenv install $RUBY_VERSION
+  rbenv global $RUBY_VERSION
 }
 
 install_vscode () {
@@ -202,10 +207,10 @@ if is_user_approved "Would you like to set up a casa environment?"; then
   fi
 
   RBENV_ROOT="$HOME/.rbenv"
-  if [ ! -d $RBENV_ROOT ]; then
+   if [ ! -d $RBENV_ROOT ]; then
     install_rbenv
     install_ruby
-  fi
+   fi
   
   configure_casa
 fi
