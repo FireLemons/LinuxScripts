@@ -22,7 +22,7 @@ add_postgres_repo () {
   sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
 
   # Add the repo key to the keyring:
-  wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /usr/share/keyrings/postgres-archive-keyring.gpg
+  wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | gpg --dearmor | sudo tee /usr/share/keyrings/postgres-archive-keyring.gpg > /dev/null
 
   log info "  Open /etc/apt/sources.list.d/pgdg.list with super user permissions so you are allowed to write to the file"
   log info "    Example using vim:"
@@ -196,4 +196,3 @@ fi
 
 log info "Clean Up"
 sudo apt autoremove
-
