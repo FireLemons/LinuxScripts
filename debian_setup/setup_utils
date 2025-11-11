@@ -3,7 +3,7 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-. "$SCRIPT_DIR/../logger"
+source "$SCRIPT_DIR/../logger"
 
 install_once () {
   if [[ -z $1 ]]; then
