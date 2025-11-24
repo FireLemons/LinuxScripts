@@ -53,6 +53,7 @@ install_flatpak_general_apps () {
 install_general_packages () {
   install_once curl
   install_once ffmpeg
+  install_once fonts-noto-cjk
   
   if install_once git; then
     git config --global user.name "Shen Yang"
