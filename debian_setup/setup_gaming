@@ -15,10 +15,15 @@ create_gaming_folder_shortcut () {
   ln -s .wine/drive_c/users/$USER/Games Games
 }
 
-install_flatpak_gaming_apps () {
-  log info "installing lutris and steam via flatpak"
-  flatpak install flathub com.valvesoftware.Steam
+install_lutris () {
+  log info "installing lutris via flatpak"
   flatpak install flathub net.lutris.Lutris
+}
+
+install_steam () {
+  log info "go to https://store.steampowered.com/about/ and download the installer"
+  log info "  then sudo apt install steam.deb"
+  wait_for_user
 }
 
 install_wine () {
@@ -43,6 +48,7 @@ install_wine () {
 }
 
 install_flatpak_gaming_apps
+install_steam
 
 if ! is_installed winehq-stable; then
   install_wine &&
