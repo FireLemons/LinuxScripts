@@ -1,0 +1,8 @@
+#!/bin/bash
+
+sudo apt install dkms linux-headers-$(uname -r)
+sudo dkms autoinstall
+sudo dpkg-reconfigure nvidia-driver
+
+echo "reboot now then run nvidia-smi"
+
